@@ -59,6 +59,6 @@ export interface IPropose {
     }
   }
   user: IUsersSupplier;
-
+  userSupplier?: IUsersSupplier;
 }
 

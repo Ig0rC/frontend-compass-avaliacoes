@@ -84,11 +84,10 @@ const STEP_VALIDATIONS = {
 interface ProcessFormProps {
   initialValues?: Partial<ProcessFormData>;
   onSubmit: (data: ProcessFormData) => Promise<void>;
-  submitButtonText: string;
 }
 
 
-export function ProcessForm({ initialValues, onSubmit, submitButtonText }: ProcessFormProps) {
+export function ProcessForm({ initialValues, onSubmit }: ProcessFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
 
   const methods = useForm<ProcessFormData>({

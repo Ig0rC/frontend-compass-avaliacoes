@@ -5,8 +5,50 @@ import { formatDate } from "@/utils/formatDate";
 import { maskCurrency } from "@/utils/maskCurrency";
 import { z } from "zod";
 
+interface DomainContact {
+  proposeTitle: string
+  proposeResType: string
+  proposeCep: string
+  proposeAddress: string
+  proposeDate: string
+  proposeDescription: string
+  proposeStatus: string
+  proposeAdditionalInfo: {
+    proposeAddCity: string
+    proposeAddUf: string
+    proposeAddNumber: string
+    proposeAddStreet: string
+    proposeAddNeighborhood: string
+    proposesAddPhoneNumber: string
+    proposeAddClientName: string
+    proposeAddPhoneNumberClient: string
+    proposeAddCompanionName: string
+    proposeAddPriority: boolean
+    proposeAddColor: string
+    proposeAddKmValue: number
+    proposeAddAvaliationValue: number
+    proposeAddDisplacementValue: number
+    proposeAddDisplacementType: string
+    proposeAddGalleryValue: number
+    proposeAddCustomerValue: number
+    proposeAddEstimatedPropertyValue: number
+    proposeAddPreReportValue: number
+    proposeAddComplement: string
+    proposesAddProposeNumber: string
+  }
+  userSupplier: {
+    userEmail: string
+    username: string
+    userDoc: string
+    userPhoneNumber: string
+    userCreaOrCau: string
+    userId: number
+  }
+}
+
+
 export class ProposeMapper {
-  static toPersistence(data: z.infer<typeof processSchema>): IPropose {
+  static toPersistence(data: z.infer<typeof processSchema>): DomainContact {
     return {
       proposeAdditionalInfo: {
         proposeAddStreet: data.street,
@@ -32,16 +74,18 @@ export class ProposeMapper {
         proposeAddDisplacementType: data.displacementType || 'Carro',
       },
       proposeCep: data.cep,
-      idProposes: data.idProposes || 0,
       proposeDate: `${data.date.split('/').reverse().join('-')}T${data.hour}:00`,
       proposeDescription: data.description,
       proposeResType: data.resType,
       proposeStatus: 'A',
       proposeTitle: data.title,
       proposeAddress: `${data.street}, ${data.number}, ${data.neighborhood}, ${data.city} - ${data.uf}, ${data.cep}`,
-      userInfoIdUser: 1, // Você pode querer tornar isso dinâmico
       userSupplier: {
-        ...data.userSupplier,
+        userCreaOrCau: data.userSupplier.userCreaOrCau,
+        username: data.userSupplier.username,
+        userPhoneNumber: data.userSupplier.userPhoneNumber,
+        userEmail: data.userSupplier.userEmail,
+        userDoc: data.userSupplier.userDoc,
         userId: Number(data.userSupplier.userId),
       }
     };

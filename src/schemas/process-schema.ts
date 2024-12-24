@@ -121,4 +121,6 @@ export const processSchema = z.object({
   userSupplier: userSupplierSchema,
   proposeSolicitationDate: z.string().optional(),
   displacementType: z.string().optional(),
+  idProposesAdditionalInfo: z.number().optional(),
+  solicitationDate: z.string().optional(),
 });

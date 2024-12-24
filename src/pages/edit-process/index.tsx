@@ -116,7 +116,6 @@ export function EditProcess() {
       <ProcessForm
         initialValues={initialValues}
         onSubmit={handleUpdateProcess}
-        submitButtonText="Atualizar Pedido"
       />
 
       <Separator className="mt-8 mb-9" />

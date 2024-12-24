@@ -54,8 +54,6 @@ export class ProposeService {
 
     const response = await api.get<IGetProposesResponse>(`/proposes?${query}`);
 
-    console.log(response.data, 'aqui')
-
     return response.data;
   }
 

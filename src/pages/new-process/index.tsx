@@ -26,7 +26,6 @@ export function NewProcess() {
     <ContainerFormLayout>
       <ProcessForm
         onSubmit={handleSubmit}
-        submitButtonText="Criar Pedido"
       />
     </ContainerFormLayout>
   );
