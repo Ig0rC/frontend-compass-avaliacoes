@@ -17,10 +17,7 @@ import { date } from "zod"
 
 interface Props {
   className?: string;
-  value?: {
-    from?: Date,
-    to?: Date,
-  };
+  value?: DateRange | undefined;
   onChange: (date: DateRange | undefined) => void;
 }
 

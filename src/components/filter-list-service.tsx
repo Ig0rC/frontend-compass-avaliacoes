@@ -18,14 +18,15 @@ import { DatePickerWithRange } from "./ui/dateRangePicker";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 
+
 const schema = z.object({
   userInfoIdUser: z.string().optional(),
   proposeDateRange: z.object({
-    from: z.date().optional(),
+    from: z.date(),
     to: z.date().optional()
   }).optional(),
   inspectionDateRange: z.object({
-    from: z.date().optional(),
+    from: z.date(),
     to: z.date().optional()
   }).optional(),
   proposeStatus: z.union([

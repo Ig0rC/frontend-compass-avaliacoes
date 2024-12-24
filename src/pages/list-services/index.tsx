@@ -10,7 +10,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { IPropose } from "@/entities/ipropose";
 import { useQuery } from "@/hooks/use-Query";
 import { processSchema } from "@/schemas/process-schema";
-import { ProposeMapper } from "@/services/mappers/propose-mapper";
 import { ProposeService } from "@/services/propose-service";
 import {
   FileSpreadsheet,
@@ -120,12 +119,13 @@ export function ListServices() {
       if (selectedPropose) {
 
         await ProposeService.update(selectedPropose?.idProposes, data);
-        const teste = ProposeMapper.toPersistence(data);
-
         setProposes(prevProposes => (
           prevProposes.map(propose => {
             if (propose.idProposes === selectedPropose.idProposes) {
-              return teste;
+              return {
+                ...propose,
+                proposeStatus: 'A',
+              };
             }
             return propose;
           })

@@ -5,7 +5,7 @@ import { formatDate } from "@/utils/formatDate";
 import { maskCurrency } from "@/utils/maskCurrency";
 import { z } from "zod";
 
-interface DomainContact {
+interface DomainPropose {
   proposeTitle: string
   proposeResType: string
   proposeCep: string
@@ -48,7 +48,7 @@ interface DomainContact {
 
 
 export class ProposeMapper {
-  static toPersistence(data: z.infer<typeof processSchema>): DomainContact {
+  static toPersistence(data: z.infer<typeof processSchema>): DomainPropose {
     return {
       proposeAdditionalInfo: {
         proposeAddStreet: data.street,

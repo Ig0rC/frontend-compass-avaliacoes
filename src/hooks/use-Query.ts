@@ -1,19 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-
-interface ILoadParamsData {
-  inspectionDateTo?: string;
-  inspectionDateFrom?: string;
-  proposesAddSolicitationDateTo?: string;
-  proposesAddSolicitationDateFrom?: string;
-  userInfoIdUser?: number;
-  page?: string | number;
-}
-
-
-
-
 export function useQuery() {
   const [getQuery, setQuery] = useSearchParams();
   const [pagination, setPagination] = useState({
