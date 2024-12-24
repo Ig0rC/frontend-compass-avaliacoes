@@ -22,11 +22,11 @@ import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 const schema = z.object({
   userInfoIdUser: z.string().optional(),
   proposeDateRange: z.object({
-    from: z.date(),
+    from: z.date().optional(),
     to: z.date().optional()
   }).optional(),
   inspectionDateRange: z.object({
-    from: z.date(),
+    from: z.date().optional(),
     to: z.date().optional()
   }).optional(),
   proposeStatus: z.union([
@@ -79,6 +79,8 @@ export function FilterListService({ onLoadData }: Props) {
       inspectionStatus: undefined,
     }
   });
+
+  console.log(form.formState.errors)
 
   function handleFilterClear() {
     form.reset({
