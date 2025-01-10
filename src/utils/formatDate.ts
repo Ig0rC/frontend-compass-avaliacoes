@@ -5,7 +5,7 @@ export function formatDate(date: string) {
   };
 
   const formatedDate = new Date(date).toLocaleString('pt-BR', {
-    timeZone: 'America/Sao_Paulo',
+    timeZone: 'UTC',
     hour: '2-digit',
     minute: '2-digit',
     day: '2-digit',

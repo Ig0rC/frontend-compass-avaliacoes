@@ -1,4 +1,5 @@
 export function maskHour(hour: string) {
+  console.log(hour);
   if (hour.length > 5) return hour;
   if (!hour) return hour;
 
