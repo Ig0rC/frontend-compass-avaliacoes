@@ -8,12 +8,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { Loader } from "../loader";
 import { TitleForm } from "../TitleForm";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 
 export function StepFour() {
+  const [isLoading, setIsLoading] = useState(true);
   const [usersSupplier, setUsersSupplier] = useState<IUsersSupplier[]>([]);
   const {
     control,
@@ -28,6 +30,8 @@ export function StepFour() {
       setUsersSupplier(data);
     } catch {
       toast.error('Erro a carregar prestadores de serviços');
+    } finally {
+      setIsLoading(false)
     }
   }, []);
 
@@ -75,6 +79,7 @@ export function StepFour() {
 
   return (
     <>
+      {isLoading && <Loader />}
       <TitleForm title="Cliente" />
 
 

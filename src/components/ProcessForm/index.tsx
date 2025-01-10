@@ -10,6 +10,7 @@ import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { Loader } from "../loader";
 
 type ProcessFormData = z.infer<typeof processSchema>;
 
@@ -88,6 +89,7 @@ interface ProcessFormProps {
 
 
 export function ProcessForm({ initialValues, onSubmit }: ProcessFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
 
   const methods = useForm<ProcessFormData>({
@@ -137,14 +139,18 @@ export function ProcessForm({ initialValues, onSubmit }: ProcessFormProps) {
 
   async function handleFormSubmit(values: ProcessFormData) {
     try {
+      setIsLoading(true)
       await onSubmit(values);
     } catch {
       toast.error('Erro ao cadastrar serviço');
+    } finally {
+      setIsLoading(false);
     }
   }
 
   return (
     <div>
+      {isLoading && <Loader />}
       {currentStep <= 4 && !initialValues && (
         <div>
           <p className="text-lg font-semibold leading-[21.64px] mt-[34px] mb-[10px]">

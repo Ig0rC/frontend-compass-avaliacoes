@@ -6,11 +6,12 @@ import { maskCep } from "@/utils/maskCEP"
 import { propertyTypes } from "@/utils/propertyTypes"
 import { states } from "@/utils/states"
 import axios from "axios"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 import { TitleForm } from "../TitleForm"
+import { Loader } from "../loader"
 
 
 
@@ -23,6 +24,7 @@ interface IGetCepResponse {
 }
 
 export function StepOne() {
+  const [isLoading, setIsLoading] = useState(false);
   const {
     setValue,
     control,
@@ -32,6 +34,7 @@ export function StepOne() {
   const uf = watch('uf')
   useEffect(() => {
     if (cep && cep.length === 10 && !uf) {
+      setIsLoading(true);
       axios.get<IGetCepResponse>(`https://viacep.com.br/ws/${cep.replace(/\D/g, '')}/json/`)
         .then(({ data }) => {
           setValue('street', data.logradouro);
@@ -41,13 +44,14 @@ export function StepOne() {
           setValue('uf', data.uf);
         }).catch(() => {
           toast.error('Não foi possível buscar o endereço!')
-        });
+        }).finally(() => setIsLoading(false));
     }
   }, [cep, uf])
 
 
   return (
     <>
+      {isLoading && <Loader />}
       <TitleForm title="Processo" />
 
       <FormField
