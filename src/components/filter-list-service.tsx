@@ -80,7 +80,6 @@ export function FilterListService({ onLoadData }: Props) {
     }
   });
 
-  console.log(form.formState.errors)
 
   function handleFilterClear() {
     form.reset({
@@ -208,11 +207,11 @@ export function FilterListService({ onLoadData }: Props) {
                       variant="default"
                     >
                       <ToggleGroupItem value="P">Em Andamento</ToggleGroupItem>
-                      <ToggleGroupItem value="b">Fazer Laudo</ToggleGroupItem>
-                      <ToggleGroupItem value="c">Remarcar</ToggleGroupItem>
-                      <ToggleGroupItem value="R">Cancelado</ToggleGroupItem>
-                      <ToggleGroupItem value="e">Problemas docs</ToggleGroupItem>
-                      <ToggleGroupItem value="f">Entregue</ToggleGroupItem>
+                      <ToggleGroupItem value="B">Fazer Laudo</ToggleGroupItem>
+                      <ToggleGroupItem value="R">Remarcar</ToggleGroupItem>
+                      <ToggleGroupItem value="C">Cancelado</ToggleGroupItem>
+                      <ToggleGroupItem value="E">Problemas docs</ToggleGroupItem>
+                      <ToggleGroupItem value="F">Entregue</ToggleGroupItem>
                     </ToggleGroup>
                   </FormControl>
                   <FormMessage />

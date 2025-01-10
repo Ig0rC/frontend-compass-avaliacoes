@@ -37,7 +37,7 @@ export function CustomPagination({ pagination, onPageNext, onPagePrevious, onPag
 
 
   return (
-    <PaginationContent className="w-full mt-10 justify-center">
+    <PaginationContent className="w-full justify-center lg:col-start-2">
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious onClick={onPagePrevious} disabled={!pagination.hasPreviousPage} size="pagination" />

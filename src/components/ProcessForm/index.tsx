@@ -96,9 +96,6 @@ export function ProcessForm({ initialValues, onSubmit }: ProcessFormProps) {
     values: { ...INITIAL_FORM_VALUES, ...initialValues },
   });
 
-  console.log(methods.formState.errors)
-
-
   const { handleSubmit, trigger } = methods;
 
   async function handleNextStep() {

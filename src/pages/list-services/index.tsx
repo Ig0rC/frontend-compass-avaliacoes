@@ -1,4 +1,5 @@
 import exportFile from "@/assets/images/export-file.svg";
+import Board from "@/components/Board";
 import { CustomPagination } from "@/components/custom-pagination";
 import { CustomServiceTable } from "@/components/custom-service-table";
 import { FilterListService } from "@/components/filter-list-service";
@@ -37,6 +38,9 @@ interface ILoadParamsData {
 
 
 export function ListServices() {
+  const [toggleView, setToggleView] = useState<'L' | 'K'>(
+    localStorage.getItem('toggleView') as 'L' | 'K' || 'L'
+  );
   const [getQuery, setQuery] = useSearchParams();
   const { pageNext, pagePrevious, pagination, setPagination, loadQuerys, pageMove } = useQuery();
   const [isLoading, setIsLoading] = useState(true);
@@ -91,6 +95,11 @@ export function ListServices() {
     })
   }
 
+  function handleToggleViewChange(value: 'L' | 'K') {
+    setToggleView(value);
+    localStorage.setItem('toggleView', value);
+  }
+
   async function handlePageMove(pageNumber: string | number) {
     setIsLoading(true);
     await loadData({
@@ -100,16 +109,28 @@ export function ListServices() {
 
   async function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter') {
-      setIsLoading(true)
+      setIsLoading(true);
+      setQuery((prev) => {
+        const params = new URLSearchParams(prev);
+        params.set('page', '1')
+        return params;
+      });
       await loadData({
         searchTerm: event.currentTarget.value,
+        page: 1,
       });
     }
 
     if (event.key === 'Backspace' && event.currentTarget.value.length === 1) {
       setIsLoading(true);
+      setQuery((prev) => {
+        const params = new URLSearchParams(prev);
+        params.set('page', '1')
+        return params;
+      });
       await loadData({
         searchTerm: event.currentTarget.value,
+        page: 1,
       });
     }
   };
@@ -141,6 +162,46 @@ export function ListServices() {
   };
 
 
+  if (toggleView === 'K') {
+    return (
+      <>
+        {isLoading && <Loader />}
+
+        <header className="flex justify-between">
+          <div className="flex-1">
+            <Label>Pesquisar</Label>
+            <div className="relative h-[46px]">
+              <Search
+                className="size-8 absolute left-4 inset-y-0 my-auto"
+                color="#C4C5CC"
+              />
+              <Input
+                onKeyDown={handleKeyDown}
+                placeholder="Pesquisar"
+                onChange={handleSearchTerm}
+                value={getQuery.get("search") ?? ''}
+                className="h-[46px] pl-[75.25px]"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-end gap-1 ml-10">
+            <FilterListService onLoadData={loadData} />
+            <ToggleGroup value={toggleView} onValueChange={handleToggleViewChange} variant="search" size="search" type="single">
+              <ToggleGroupItem className="rounded-sm " value="L">
+                <FileSpreadsheet color="black" size={32} />
+              </ToggleGroupItem>
+              <ToggleGroupItem className="rounded-sm " value="K">
+                <SquareKanban size={32} color="black" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        </header>
+        <Board proposes={proposes} />
+      </>
+    )
+  }
+
 
   return (
     <div className="h-full">
@@ -165,12 +226,12 @@ export function ListServices() {
 
         <div className="flex items-end gap-1 ml-10">
           <FilterListService onLoadData={loadData} />
-          <ToggleGroup variant="search" size="search" type="single">
-            <ToggleGroupItem value="a">
-              <FileSpreadsheet size={32} />
+          <ToggleGroup value={toggleView} onValueChange={handleToggleViewChange} variant="search" size="search" type="single">
+            <ToggleGroupItem className="rounded-sm " value="L">
+              <FileSpreadsheet size={32} color="black" />
             </ToggleGroupItem>
-            <ToggleGroupItem value="b">
-              <SquareKanban size={32} />
+            <ToggleGroupItem className="rounded-sm " value="K">
+              <SquareKanban size={32} color="black" />
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
@@ -185,24 +246,26 @@ export function ListServices() {
         Exportar planilha
       </button>
 
-      <div className="relative">
+      <div>
         <CustomServiceTable onUpdatePropose={handleUpdatePropose} proposes={proposes} />
 
-        <CustomPagination
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4">
+          <CustomPagination
 
-          onPageMove={handlePageMove}
-          onPageNext={handlePageNext}
-          onPagePrevious={handlePagePrevious}
-          pagination={pagination}
-        />
+            onPageMove={handlePageMove}
+            onPageNext={handlePageNext}
+            onPagePrevious={handlePagePrevious}
+            pagination={pagination}
+          />
 
-        <div className="absolute bottom-1 right-0">
-          <Link to="/new-process"
-            className="w-96 h-[52px] justify-center items-center flex rounded bg-primary-light text-primary-foreground hover:bg-primary-hover font-bold text-xl"
-          >
-            <Plus size={24} />
-            Criar Processo
-          </Link>
+          <div className="lg:col-start-3 lg:justify-self-end justify-self-center">
+            <Link to="/new-process"
+              className="w-96 h-[52px] justify-center items-center flex rounded bg-primary-light text-primary-foreground hover:bg-primary-hover font-bold text-xl"
+            >
+              <Plus size={24} />
+              Criar Processo
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import photoUser from '@/assets/images/photo-user.jpeg';
+import { Loader } from '@/components/loader';
 import { ProcessForm } from '@/components/ProcessForm';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -21,16 +22,22 @@ export function EditProcess() {
   const { id } = useParams();
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('');
-
+  const [isLoading, setIsLoading] = useState(true);
   const [initialValues, setInitialValues] = useState<Partial<ProcessFormData>>({});
 
   useEffect(() => {
     async function loadProcess() {
       if (id) {
-        const process = await ProposeService.getById(id);
-        setStatus(process.proposeStatus);
-        console.log(process.user)
-        setInitialValues(ProposeMapper.toDomain(process));
+        try {
+          const process = await ProposeService.getById(id);
+          setStatus(process.proposeStatus);
+
+          setInitialValues(ProposeMapper.toDomain(process));
+        } catch {
+          toast.error('Erro ao carregar processo');
+        } finally {
+          setIsLoading(false);
+        }
       }
     }
     loadProcess();
@@ -113,6 +120,7 @@ export function EditProcess() {
 
   return (
     <ContainerFormLayout>
+      {isLoading && <Loader />}
       <ProcessForm
         initialValues={initialValues}
         onSubmit={handleUpdateProcess}
@@ -127,10 +135,11 @@ export function EditProcess() {
           <SelectValue placeholder="Selecione" />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="N">Novo</SelectItem>
           <SelectItem value="A">Aceito</SelectItem>
-          <SelectItem value="P">Andamento</SelectItem>
+          <SelectItem value="P">Em Andamento</SelectItem>
           <SelectItem value="R">Recusado</SelectItem>
-          <SelectItem value="F">Concluído</SelectItem>
+          <SelectItem value="F">Finalizado</SelectItem>
         </SelectContent>
       </Select>
 

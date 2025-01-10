@@ -10,8 +10,6 @@ import SignIn from "@/pages/sign-in";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthGuard } from "./AuthGuard";
 
-
-
 export default function Router() {
 
   return (

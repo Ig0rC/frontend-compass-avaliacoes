@@ -19,7 +19,7 @@ export function HeaderListLayout() {
   }, [])
 
   return (
-    <div className="px-[40px] max-w-[1880px] box-border w-full m-auto h-full flex flex-col bg-[#FAFAFA]">
+    <div className="px-[40px] box-border w-full m-auto h-full flex flex-col bg-[#FAFAFA]">
       <header className="bg-grey-50 flex justify-between items-center">
 
         <Link to="/profile-user" className="flex justify-between items-center gap-6">
