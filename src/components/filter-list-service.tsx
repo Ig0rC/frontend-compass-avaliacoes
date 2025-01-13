@@ -89,6 +89,7 @@ export function FilterListService({ onLoadData }: Props) {
 
   function handleFilterClear() {
     form.reset({
+      userInfoIdUser: '',
       proposeStatus: [],
       inspectionStatus: [],
     })
