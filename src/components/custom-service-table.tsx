@@ -329,9 +329,12 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                             </FormControl>
 
                             <SelectContent>
-                              <SelectItem value="A">Andamento</SelectItem>
-                              <SelectItem value="B">Concluído</SelectItem>
-                              <SelectItem value="C">Pendente</SelectItem>
+                              <SelectItem value="P">Em Andamento</SelectItem>
+                              <SelectItem value="M">Fazer Laudo</SelectItem>
+                              <SelectItem value="T">Remarcar</SelectItem>
+                              <SelectItem value="D">Problemas no Docs</SelectItem>
+                              <SelectItem value="R">Cancelado</SelectItem>
+                              <SelectItem value="F">Finalizado</SelectItem>
                             </SelectContent>
                           </Select>
                         )}
