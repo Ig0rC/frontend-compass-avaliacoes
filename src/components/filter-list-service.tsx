@@ -8,38 +8,45 @@ import {
 } from "@/components/ui/select";
 import { IUsersSupplier } from "@/entities/i-user-supplier";
 import { UserSupplierService } from "@/services/user-supplier-service";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Filter } from "lucide-react";
 import { useEffect, useState } from "react";
+import { DateRange } from "react-day-picker";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 import { DatePickerWithRange } from "./ui/dateRangePicker";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 
+// const schema = z.object({
+//   userInfoIdUser: z.string().optional(),
+//   proposeDateRange: z.object({
+//     from: z.date().transform(val => val || undefined), // from é required, mas pode ser undefined
+//     to: z.date().optional()
+//   }),
+//   inspectionDateRange: z.object({
+//     from: z.date().transform(val => val || undefined), // from é required, mas pode ser undefined
+//     to: z.date().optional()
+//   }),
+//   proposeStatus: z.union([
+//     z.array(z.string()),
+//     z.string().transform((val) => [val]),
+//     z.undefined(),
+//   ]),
+//   inspectionStatus: z.union([
+//     z.array(z.string()),
+//     z.string().transform((val) => [val]),
+//     z.undefined(),
+//   ]),
+// });
 
-const schema = z.object({
-  userInfoIdUser: z.string().optional(),
-  proposeDateRange: z.object({
-    from: z.date().optional(),
-    to: z.date().optional()
-  }).optional(),
-  inspectionDateRange: z.object({
-    from: z.date().optional(),
-    to: z.date().optional()
-  }).optional(),
-  proposeStatus: z.union([
-    z.array(z.string()),
-    z.string().transform((val) => [val]),
-    z.undefined(),
-  ]),
-  inspectionStatus: z.union([
-    z.array(z.string()),
-    z.string().transform((val) => [val]),
-    z.undefined(),
-  ]),
-});
+
+interface FormValues {
+  userInfoIdUser?: string;
+  proposeDateRange: DateRange;
+  inspectionDateRange: DateRange;
+  proposeStatus: string[] | undefined;
+  inspectionStatus: string[] | undefined;
+}
 
 
 interface ILoadParamsData {
@@ -63,8 +70,7 @@ interface Props {
 
 export function FilterListService({ onLoadData }: Props) {
   const [usersSupplier, setUsersSupplier] = useState<IUsersSupplier[]>([]);
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
+  const form = useForm<FormValues>({
     defaultValues: {
       userInfoIdUser: '',
       proposeDateRange: {
@@ -94,7 +100,7 @@ export function FilterListService({ onLoadData }: Props) {
     });
   }, []);
 
-  async function onSubmit(data: z.infer<typeof schema>) {
+  async function onSubmit(data: FormValues) {
     await onLoadData({
       page: 1,
       searchTerm: '',
