@@ -29,6 +29,17 @@ interface IGetProposesParams {
   searchTerm?: string;
 }
 
+interface IGetExportProposesParams {
+  inspectionDateTo?: string;
+  inspectionDateFrom?: string;
+  proposeDateTo?: string;
+  proposeDateFrom?: string;
+  userInfoIdUser?: string;
+  proposeStatus?: string | string[]
+  searchTerm?: string;
+  inspectionStatus: string | string[];
+}
+
 export class ProposeService {
   static async create(body: z.infer<typeof processSchema>) {
     const dataMapper = ProposeMapper.toPersistence(body);
@@ -53,6 +64,21 @@ export class ProposeService {
 
 
     const response = await api.get<IGetProposesResponse>(`/proposes?${query}`);
+
+    return response.data;
+  }
+
+  static async getExportProposes(params: IGetExportProposesParams) {
+    const query = QueryString.stringify({
+      ...params,
+      proposeStatus: params.proposeStatus,
+    });
+
+
+    const response = await api.get(`/export-proposes?${query}`, {
+      responseType: 'blob', // Importante para receber o arquivo
+
+    });
 
     return response.data;
   }

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: 'https://compass-platform-7f04be208f7d.herokuapp.com',
+  baseURL: import.meta.env.VITE_BASE_URL,
 })
 
 api.interceptors.request.use((config) => {

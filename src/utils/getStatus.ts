@@ -8,7 +8,7 @@ export function getStatus(status: string) {
     case 'D': return 'Problema no Docs';
     case 'R': return 'Cancelado'; // refused
     case 'F': return 'Finalizado';
-    default: return 'E';
+    default: return 'ERROR';
   }
 
 }

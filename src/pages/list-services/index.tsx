@@ -48,6 +48,10 @@ export function ListServices() {
 
   const loadData = useCallback(async (params: ILoadParamsData) => {
     try {
+      console.log({
+        params
+      })
+
       const data = await ProposeService.getProposes({
         ...params,
         page: params.page || loadQuerys().page,
@@ -75,6 +79,41 @@ export function ListServices() {
       params.set('search', e.target.value)
       return params;
     });
+  }
+
+  async function handleExportProposes() {
+    try {
+      const data = await ProposeService.getExportProposes({
+        searchTerm: getQuery.get('searchTerm') || '',
+        inspectionDateFrom: getQuery.get('inspectionDateFrom') ? new Date(getQuery.get('inspectionDateFrom')!).toISOString() : undefined,
+        inspectionDateTo: getQuery.get('inspectionDateTo') ? new Date(getQuery.get('inspectionDateTo')!).toISOString() : undefined,
+        proposeDateFrom: getQuery.get('proposeDateFrom') ? new Date(getQuery.get('proposeDateFrom')!).toISOString() : undefined,
+        proposeDateTo: getQuery.get('proposeDateTo') ? new Date(getQuery.get('proposeDateTo')!).toISOString() : undefined,
+        proposeStatus: getQuery.get('proposeStatus') ? JSON.parse(getQuery.get('proposeStatus')!) : undefined,
+        userInfoIdUser: getQuery.get('userInfoIdUser') || undefined,
+        inspectionStatus: getQuery.get('inspectionStatus') ? JSON.parse(getQuery.get('inspectionStatus')!) : undefined,
+      });
+
+      // Criar URL do blob
+      const blob = new Blob([data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      const url = window.URL.createObjectURL(blob)
+
+      // Criar link e fazer download
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'relatorio.xlsx')
+      document.body.appendChild(link)
+      link.click()
+
+      // Cleanup
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(link)
+      toast.success('Arquivo exportado com sucesso')
+    } catch {
+      toast.error('Erro ao exportar arquivo')
+    }
   }
 
   async function handlePageNext() {
@@ -237,7 +276,7 @@ export function ListServices() {
         </div>
       </header>
 
-      <button className="flex items-center underline flex-start gap-2 mt-11 mb-10 box-border min-w-[180px]">
+      <button onClick={handleExportProposes} className="flex items-center underline flex-start gap-2 mt-11 mb-10 box-border min-w-[180px]">
         <img
           className="max-w-[24px] max-h-[24px] w-full h-full"
           src={exportFile}

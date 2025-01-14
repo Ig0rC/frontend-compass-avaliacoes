@@ -12,6 +12,7 @@ import { Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DatePickerWithRange } from "./ui/dateRangePicker";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
@@ -69,30 +70,63 @@ interface Props {
 
 
 export function FilterListService({ onLoadData }: Props) {
+  const [getQuery, setQuery] = useSearchParams();
+
   const [usersSupplier, setUsersSupplier] = useState<IUsersSupplier[]>([]);
   const form = useForm<FormValues>({
     defaultValues: {
-      userInfoIdUser: '',
+      userInfoIdUser: getQuery.get('userInfoIdUser') || '',
       proposeDateRange: {
-        from: undefined,
-        to: undefined,
+        from: getQuery.get('proposeDateFrom') ? new Date(getQuery.get('proposeDateFrom')!) : undefined,
+        to: getQuery.get('proposeDateTo') ? new Date(getQuery.get('proposeDateTo')!) : undefined,
       },
       inspectionDateRange: {
-        from: undefined,
-        to: undefined,
+        from: getQuery.get('inspectionDateFrom') ? new Date(getQuery.get('inspectionDateFrom')!) : undefined,
+        to: getQuery.get('inspectionDateTo') ? new Date(getQuery.get('inspectionDateTo')!) : undefined,
       },
-      proposeStatus: undefined,
-      inspectionStatus: undefined,
+      proposeStatus: getQuery.get('proposeStatus') ? JSON.parse(getQuery.get('proposeStatus')!) : [],
+      inspectionStatus: getQuery.get('inspectionStatus') ? JSON.parse(getQuery.get('inspectionStatus')!) : [],
     }
   });
 
 
   function handleFilterClear() {
+    setQuery((prev) => {
+      const params = new URLSearchParams(prev);
+
+      // Salva os valores de 'page' e 'searchTerm'
+      const page = params.get('page') || '1';
+      const searchTerm = params.get('searchTerm');
+
+      // Limpa todos os parâmetros
+      params.delete('proposeStatus');
+      params.delete('inspectionStatus');
+      params.delete('userInfoIdUser');
+      params.delete('inspectionDateFrom');
+      params.delete('inspectionDateTo');
+      params.delete('proposeDateFrom');
+      params.delete('proposeDateTo');
+
+      // Redefine apenas 'page' e 'searchTerm' se tiverem valor
+      params.set('page', page);
+
+      if (searchTerm) {
+        params.set('searchTerm', searchTerm);
+      }
+
+      return params.toString();
+    });
+
     form.reset({
       userInfoIdUser: '',
       proposeStatus: [],
       inspectionStatus: [],
-    })
+    });
+
+    onLoadData({
+      page: 1,
+      searchTerm: '',
+    });
   }
 
   useEffect(() => {
@@ -102,6 +136,58 @@ export function FilterListService({ onLoadData }: Props) {
   }, []);
 
   async function onSubmit(data: FormValues) {
+    setQuery((prev) => {
+      const params = new URLSearchParams(prev);
+
+      // Definindo todos os parâmetros
+      params.set('page', '1');
+      params.set('searchTerm', prev.get('search') || '');
+
+      if (data.inspectionDateRange?.from) {
+        params.set('inspectionDateFrom', data.inspectionDateRange.from.toISOString());
+      } else {
+        params.delete('inspectionDateFrom');
+      }
+
+      if (data.inspectionDateRange?.to) {
+        params.set('inspectionDateTo', data.inspectionDateRange.to.toISOString());
+      } else {
+        params.delete('inspectionDateTo');
+      }
+
+      if (data.proposeDateRange?.from) {
+        params.set('proposeDateFrom', data.proposeDateRange.from.toISOString());
+      } else {
+        params.delete('proposeDateFrom');
+      }
+
+      if (data.proposeDateRange?.to) {
+        params.set('proposeDateTo', data.proposeDateRange.to.toISOString());
+      } else {
+        params.delete('proposeDateTo');
+      }
+
+      if (data.proposeStatus) {
+        params.set('proposeStatus', JSON.stringify(data.proposeStatus));
+      } else {
+        params.delete('proposeStatus');
+      }
+
+      if (data.userInfoIdUser) {
+        params.set('userInfoIdUser', data.userInfoIdUser.toString());
+      } else {
+        params.delete('userInfoIdUser');
+      }
+
+      if (data.inspectionStatus) {
+        params.set('inspectionStatus', JSON.stringify(data.inspectionStatus));
+      } else {
+        params.delete('inspectionStatus');
+      }
+
+      return params.toString();
+    });
+
     await onLoadData({
       page: 1,
       searchTerm: '',
