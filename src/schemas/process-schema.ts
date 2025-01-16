@@ -1,6 +1,5 @@
 import z from 'zod';
 
-const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 
 // Mensagens de erro comuns
 const errorMessages = {

@@ -52,6 +52,7 @@ export class ProposeMapper {
   static toPersistence(data: z.infer<typeof processSchema>): DomainPropose {
     return {
       proposeAdditionalInfo: {
+
         proposeAddStreet: data.street,
         proposeAddCity: data.city,
         proposeAddClientName: data.clientName,
@@ -80,6 +81,7 @@ export class ProposeMapper {
       proposeResType: data.resType,
       proposeStatus: 'A',
       proposeTitle: data.title,
+      proposeFiles: [],
       proposeAddress: `${data.street}, ${data.number}, ${data.neighborhood}, ${data.city} - ${data.uf}, ${data.cep}`,
       userSupplier: {
         userCreaOrCau: data.userSupplier.userCreaOrCau,
