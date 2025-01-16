@@ -14,7 +14,7 @@ import { Loader } from "../loader";
 
 type ProcessFormData = z.infer<typeof processSchema>;
 
-const INITIAL_FORM_VALUES: ProcessFormData = {
+const INITIAL_FORM_VALUES = {
   title: '',
   processNumber: '',
   resType: '',

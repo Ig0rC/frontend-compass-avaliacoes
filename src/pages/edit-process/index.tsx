@@ -30,6 +30,7 @@ export function EditProcess() {
       if (id) {
         try {
           const process = await ProposeService.getById(id);
+          console.log(process)
           setStatus(process.proposeStatus);
 
           setInitialValues(ProposeMapper.toDomain(process));

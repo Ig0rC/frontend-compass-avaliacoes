@@ -1,5 +1,7 @@
 import z from 'zod';
 
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
+
 // Mensagens de erro comuns
 const errorMessages = {
   required: (field: string) => `Informe ${field}.`,
@@ -38,6 +40,8 @@ const scheduleSchema = z.object({
   phoneNumber: z.string()
     .min(1, errorMessages.required('um número de telefone'))
     .max(15, errorMessages.maxLength('Telefone', 15)),
+  files: z.array(z.instanceof(File)).optional(),
+
 });
 
 // Schema de cliente
@@ -123,4 +127,10 @@ export const processSchema = z.object({
   displacementType: z.string().optional(),
   idProposesAdditionalInfo: z.number().optional(),
   solicitationDate: z.string().optional(),
+  attachments: z.array(z.object({
+    id_attachments: z.number(),
+    attachments_link: z.string(),
+    attachments_status: z.string(),
+    proposes_id_proposes: z.number(),
+  })).optional(),
 });

@@ -60,5 +60,11 @@ export interface IPropose {
   }
   user: IUsersSupplier;
   userSupplier?: IUsersSupplier;
+  attachments?: {
+    id_attachments: number
+    attachments_link: string
+    attachments_status: string
+    proposes_id_proposes: number
+  }[]
 }
 

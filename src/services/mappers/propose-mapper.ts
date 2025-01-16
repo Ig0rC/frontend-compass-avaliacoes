@@ -13,6 +13,7 @@ interface DomainPropose {
   proposeDate: string
   proposeDescription: string
   proposeStatus: string
+  proposeFiles: File[],
   proposeAdditionalInfo: {
     proposeAddCity: string
     proposeAddUf: string
@@ -95,6 +96,7 @@ export class ProposeMapper {
     const proposeDate = formatDate(data.proposeDate);
 
     return {
+      idProposes: data.idProposes,
       title: data.proposeTitle,
       processNumber: data.proposeAdditionalInfo.proposesAddProposeNumber,
       resType: data.proposeResType,
@@ -133,6 +135,7 @@ export class ProposeMapper {
         userPhoneNumber: data.user.userPhone ?? '',
         notifications: data.user.notifications || [],
       },
+      attachments: data.attachments,
     };
   }
 }
