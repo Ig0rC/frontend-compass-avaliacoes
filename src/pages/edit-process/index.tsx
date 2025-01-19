@@ -14,6 +14,7 @@ import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import send from '../../assets/images/send.svg';
+import { Button } from '../../components/ui/button';
 
 type ProcessFormData = z.infer<typeof processSchema>;
 
@@ -119,6 +120,38 @@ export function EditProcess() {
     }
   };
 
+  async function handleExportPropose() {
+    try {
+
+      setIsLoading(true);
+      if (initialValues?.idProposes) {
+        const data = await ProposeService.getExportPropose(initialValues.idProposes);
+
+        // Criar URL do blob
+        const blob = new Blob([data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        })
+        const url = window.URL.createObjectURL(blob)
+
+        // Criar link e fazer download
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'relatorio.xlsx')
+        document.body.appendChild(link)
+        link.click()
+
+        // Cleanup
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(link)
+      }
+
+    } catch {
+      toast.error('Erro ao exportar o arquivo');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <ContainerFormLayout>
       {isLoading && <Loader />}
@@ -127,6 +160,7 @@ export function EditProcess() {
         onSubmit={handleUpdateProcess}
       />
 
+      <Button variant="transparent-default" onClick={handleExportPropose}>Exportar</Button>
       <Separator className="mt-8 mb-9" />
 
       <h1 className="text-primary text-[26px] font-bold mb-[38px] ">Status</h1>

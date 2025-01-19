@@ -110,6 +110,14 @@ export class ProposeService {
     return response.data;
   }
 
+  static async getExportPropose(id: string | number) {
+    const response = await api.get(`/export-propose/${id}`, {
+      responseType: 'blob', // Importante para receber o arquivo
+    });
+
+    return response.data;
+  }
+
   static async getById(id: string) {
     const response = await api.get<IPropose>(`/proposes/${id}`);
 
