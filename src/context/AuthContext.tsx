@@ -1,7 +1,8 @@
 import { api } from "@/lib/api";
 import { AuthServices } from "@/services/AuthServices";
 import qs from "qs";
-import { createContext, useCallback, useState } from "react";
+import { createContext, useCallback, useLayoutEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface IAuthContext {
   signedIn: boolean;
@@ -19,6 +20,7 @@ interface IAuthContextProviderProps {
 
 export default function AuthContextProvider({ children }: IAuthContextProviderProps) {
   const [signedIn, setSignedIn] = useState(() => !!localStorage.getItem("accessToken"));
+  console.log(!!localStorage.getItem("accessToken"));
 
   const signInWithGogle = useCallback(() => {
     const baseURL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -31,6 +33,43 @@ export default function AuthContextProvider({ children }: IAuthContextProviderPr
     });
 
     window.location.href = `${baseURL}?${options}`
+  }, []);
+
+  useLayoutEffect(() => {
+    const interceptorId = api.interceptors.request.use((config) => {
+      const accessToken = localStorage.getItem("accessToken");
+
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+
+      return config;
+    });
+
+
+    return () => {
+      api.interceptors.request.eject(interceptorId);
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    const interceptorId = api.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response.status === 401) {
+          localStorage.removeItem("accessToken");
+          setSignedIn(false);
+          toast.warning('Sessão expirada. Por favor, entre novamente.');
+          return Promise.reject(error)
+        }
+        toast.error('Ops, aconteceu algum erro!');
+        return Promise.reject(error)
+      }
+    )
+
+    return () => {
+      api.interceptors.response.eject(interceptorId);
+    }
   }, []);
 
   const signOut = useCallback(() => {
@@ -56,6 +95,7 @@ export default function AuthContextProvider({ children }: IAuthContextProviderPr
 
     setSignedIn(true);
   }, []);
+
 
   return (
     <AuthContext.Provider

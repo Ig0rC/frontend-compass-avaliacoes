@@ -384,20 +384,16 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                     <TableCell>
                       <FormField
                         control={form.control}
-                        name="displacementType"
+                        name="displacementValue"
                         render={({ field, formState }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger className={formState.errors.displacementType && 'border-red-500'}>
-                                <SelectValue placeholder="Selecione" />
-                              </SelectTrigger>
-                            </FormControl>
-
-                            <SelectContent>
-                              <SelectItem value="Carro">Carro</SelectItem>
-                              <SelectItem value="Avião">Avião</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="R$ "
+                              onChange={(e) => field.onChange(maskCurrency(e.target.value))}
+                              className={formState.errors.displacementValue && 'border-red-500'}
+                            />
+                          </FormControl>
                         )}
                       />
                     </TableCell>
@@ -482,7 +478,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                   </TableCell>
 
                   <TableCell>
-                    {data.proposeAdditionalInfo?.proposeAddDisplacementType || 'Carro'}
+                    {maskCurrency(data.proposeAdditionalInfo?.proposeAddDisplacementValue || '', true)}
                   </TableCell>
 
                   <TableCell>

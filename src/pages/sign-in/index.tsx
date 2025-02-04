@@ -1,11 +1,12 @@
 import logo from '@/assets/images/logo.png';
+import { Loader } from '@/components/loader';
 import { Button } from "@/components/ui/button";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { AuthContext } from '@/context/AuthContext';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useForm } from "react-hook-form";
 import { toast } from 'sonner';
 import { z } from "zod";
@@ -21,7 +22,7 @@ const formSchema = z.object({
 
 function SignIn() {
   const { signIn } = useContext(AuthContext);
-
+  const [isLoading, setIsLoading] = useState(false);
   const { signInWithGogle } = useContext(AuthContext);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -34,14 +35,18 @@ function SignIn() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      setIsLoading(true)
       await signIn(values.email, values.password, values.keepLoggedIn);
     } catch {
       toast.error('E-mail ou senha inválidos.');
+    } finally {
+      setIsLoading(false);
     }
   }
 
   return (
     <div className="h-full flex justify-center items-center">
+      {isLoading && <Loader />}
       <div className="flex flex-col max-w-xl w-full p-2">
         <img className="max-h-32 h-full max-w-72 w-full self-center" src={logo} alt="Compass Avaliações" />
         <Form {...form}>

@@ -79,7 +79,6 @@ function Board({ proposes }: Props) {
       newData.columns[columnId].proposeIds.push(propose.idProposes);
     });
 
-    console.log(newData, 'here')
     setData(newData);
   }, [proposes]);
 

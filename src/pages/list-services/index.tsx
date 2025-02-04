@@ -60,8 +60,6 @@ export function ListServices() {
 
       setProposes(data.proposes);
       setPagination(data.pagination);
-    } catch {
-      toast.error("Erro ao buscar propostas");
     } finally {
       setTimeout(() => {
         setIsLoading(false);
