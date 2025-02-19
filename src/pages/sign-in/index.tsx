@@ -8,6 +8,7 @@ import { AuthContext } from '@/context/AuthContext';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useContext, useState } from 'react';
 import { useForm } from "react-hook-form";
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from "zod";
 
@@ -79,8 +80,7 @@ function SignIn() {
             />
 
             <div className="block w-full bold">
-              <a className="underline text-primary-light font-semibold text-base" href="https://google.com">Esqueci minha senha</a>
-              <span className="text-red-500 font-bold mx-2"> ⬅️ (Não implementado)</span>
+              <Link className="underline text-primary-light font-semibold text-base" to="/forgot-password">Esqueci minha senha</Link>
             </div>
 
             <FormField
