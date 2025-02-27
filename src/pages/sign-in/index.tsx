@@ -38,7 +38,8 @@ function SignIn() {
     try {
       setIsLoading(true)
       await signIn(values.email, values.password, values.keepLoggedIn);
-    } catch {
+    } catch (error) {
+      console.log(error)
       toast.error('E-mail ou senha inválidos.');
     } finally {
       setIsLoading(false);

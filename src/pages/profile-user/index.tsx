@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
 import { useForm } from "react-hook-form";
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from "zod";
 
@@ -116,6 +117,9 @@ export function ProfileUser() {
 
           <div className="flex flex-col w-full mt-10 gap-[22px]">
             <Button className="w-full" type="submit">Salvar</Button>
+            <Link to="/user-manegement">
+              Controle de Usuários
+            </Link>
             <Button onClick={signOut} variant="transparent-danger" type="submit">
               <img src={exit} alt="" />
               Sair da conta

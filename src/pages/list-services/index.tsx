@@ -1,25 +1,18 @@
 import exportFile from "@/assets/images/export-file.svg";
 import Board from "@/components/Board";
-import { CustomPagination } from "@/components/custom-pagination";
 import { CustomServiceTable } from "@/components/custom-service-table";
 import { FilterListService } from "@/components/filter-list-service";
+import { FooterTable } from "@/components/footer-table";
+import { InputSearch } from "@/components/input-search";
 import { Loader } from "@/components/loader";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ViewMode } from "@/components/view-mode";
 import { IPropose } from "@/entities/ipropose";
 import { useQuery } from "@/hooks/use-Query";
 import { processSchema } from "@/schemas/process-schema";
 import { ProposeService } from "@/services/propose-service";
-import {
-  FileSpreadsheet,
-  Plus,
-  Search,
-  SquareKanban
-} from "lucide-react";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -35,8 +28,6 @@ interface ILoadParamsData {
   searchTerm?: string;
 }
 
-
-
 export function ListServices() {
   const [toggleView, setToggleView] = useState<'L' | 'K'>(
     localStorage.getItem('toggleView') as 'L' | 'K' || 'L'
@@ -48,10 +39,6 @@ export function ListServices() {
 
   const loadData = useCallback(async (params: ILoadParamsData) => {
     try {
-      console.log({
-        params
-      })
-
       const data = await ProposeService.getProposes({
         ...params,
         page: params.page || loadQuerys().page,
@@ -132,17 +119,19 @@ export function ListServices() {
     })
   }
 
-  function handleToggleViewChange(value: 'L' | 'K') {
-    setToggleView(value);
-    localStorage.setItem('toggleView', value);
-  }
-
   async function handlePageMove(pageNumber: string | number) {
     setIsLoading(true);
     await loadData({
       page: pageMove(pageNumber),
     })
   }
+
+  function handleToggleViewChange(value: 'L' | 'K') {
+    setToggleView(value);
+    localStorage.setItem('toggleView', value);
+  }
+
+
 
   async function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter') {
@@ -171,6 +160,7 @@ export function ListServices() {
       });
     }
   };
+
 
   async function handleUpdatePropose(selectedPropose: IPropose, data: z.infer<typeof processSchema>) {
     try {
@@ -205,33 +195,17 @@ export function ListServices() {
         {isLoading && <Loader />}
 
         <header className="flex justify-between">
-          <div className="flex-1">
-            <Label>Pesquisar</Label>
-            <div className="relative h-[46px]">
-              <Search
-                className="size-8 absolute left-4 inset-y-0 my-auto"
-                color="#C4C5CC"
-              />
-              <Input
-                onKeyDown={handleKeyDown}
-                placeholder="Pesquisar"
-                onChange={handleSearchTerm}
-                value={getQuery.get("search") ?? ''}
-                className="h-[46px] pl-[75.25px]"
-              />
-            </div>
-          </div>
+          <InputSearch
+            onChange={handleSearchTerm}
+            onKeyDown={handleKeyDown}
+          />
 
           <div className="flex items-end gap-1 ml-10">
             <FilterListService onLoadData={loadData} />
-            <ToggleGroup value={toggleView} onValueChange={handleToggleViewChange} variant="search" size="search" type="single">
-              <ToggleGroupItem className="rounded-sm " value="L">
-                <FileSpreadsheet color="black" size={32} />
-              </ToggleGroupItem>
-              <ToggleGroupItem className="rounded-sm " value="K">
-                <SquareKanban size={32} color="black" />
-              </ToggleGroupItem>
-            </ToggleGroup>
+            <ViewMode
+              toggleView={toggleView}
+              onToggleViewChange={handleToggleViewChange}
+            />
           </div>
         </header>
         <Board proposes={proposes} />
@@ -244,33 +218,19 @@ export function ListServices() {
     <div className="h-full">
       {isLoading && <Loader />}
       <header className="flex justify-between">
-        <div className="flex-1">
-          <Label>Pesquisar</Label>
-          <div className="relative h-[46px]">
-            <Search
-              className="size-8 absolute left-4 inset-y-0 my-auto"
-              color="#C4C5CC"
-            />
-            <Input
-              onKeyDown={handleKeyDown}
-              placeholder="Pesquisar"
-              onChange={handleSearchTerm}
-              value={getQuery.get("search") ?? ''}
-              className="h-[46px] pl-[75.25px]"
-            />
-          </div>
-        </div>
+        <InputSearch
+          onChange={handleSearchTerm}
+          onKeyDown={handleKeyDown}
+
+        />
+
 
         <div className="flex items-end gap-1 ml-10">
           <FilterListService onLoadData={loadData} />
-          <ToggleGroup value={toggleView} onValueChange={handleToggleViewChange} variant="search" size="search" type="single">
-            <ToggleGroupItem className="rounded-sm " value="L">
-              <FileSpreadsheet size={32} color="black" />
-            </ToggleGroupItem>
-            <ToggleGroupItem className="rounded-sm " value="K">
-              <SquareKanban size={32} color="black" />
-            </ToggleGroupItem>
-          </ToggleGroup>
+          <ViewMode
+            toggleView={toggleView}
+            onToggleViewChange={handleToggleViewChange}
+          />
         </div>
       </header>
 
@@ -286,24 +246,15 @@ export function ListServices() {
       <div>
         <CustomServiceTable onUpdatePropose={handleUpdatePropose} proposes={proposes} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4">
-          <CustomPagination
+        <FooterTable
+          onPageMove={handlePageMove}
+          onPageNext={handlePageNext}
+          onPagePrevious={handlePagePrevious}
+          pagination={pagination}
+          pathTo="/new-process"
+          buttonName="Novo Processo"
 
-            onPageMove={handlePageMove}
-            onPageNext={handlePageNext}
-            onPagePrevious={handlePagePrevious}
-            pagination={pagination}
-          />
-
-          <div className="lg:col-start-3 lg:justify-self-end justify-self-center">
-            <Link to="/new-process"
-              className="w-96 h-[52px] justify-center items-center flex rounded bg-primary-light text-primary-foreground hover:bg-primary-hover font-bold text-xl"
-            >
-              <Plus size={24} />
-              Criar Processo
-            </Link>
-          </div>
-        </div>
+        />
       </div>
     </div>
   );

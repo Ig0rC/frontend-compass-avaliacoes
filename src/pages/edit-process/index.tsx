@@ -25,6 +25,7 @@ export function EditProcess() {
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [initialValues, setInitialValues] = useState<Partial<ProcessFormData>>({});
+  const [user] = useState(JSON.parse(localStorage.getItem('user')));
 
   useEffect(() => {
     async function loadProcess() {
@@ -153,7 +154,7 @@ export function EditProcess() {
   }
 
   return (
-    <ContainerFormLayout>
+    <ContainerFormLayout pathTo="/">
       {isLoading && <Loader />}
       <ProcessForm
         initialValues={initialValues}
@@ -165,7 +166,7 @@ export function EditProcess() {
 
       <h1 className="text-primary text-[26px] font-bold mb-[38px] ">Status</h1>
       <Label>Selecionar Status</Label>
-      <Select onValueChange={handleStatusChange} value={status}>
+      <Select onValueChange={handleStatusChange} value={status} disabled={user.role === 'F'}>
         <SelectTrigger>
           <SelectValue placeholder="Selecione" />
         </SelectTrigger>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export function useQuery() {
@@ -18,15 +18,16 @@ export function useQuery() {
       params.set('page', pageNumber.toString())
       return params;
     });
-
   }
 
-  function loadQuerys() {
+
+
+  const loadQuerys = useCallback(() => {
     return {
       page: getQuery.get('page') || pagination.currentPage,
       searchTerm: getQuery.get('search') || '',
     }
-  }
+  }, [getQuery, pagination.currentPage])
 
   function pageNext() {
     const nextPageNumber = Number(loadQuerys().page) + 1;
@@ -54,6 +55,6 @@ export function useQuery() {
   return {
     pageNext, pagePrevious,
     pagination, setPagination,
-    loadQuerys, pageMove
+    loadQuerys, pageMove, setQuery
   }
 }

@@ -19,8 +19,7 @@ interface IAuthContextProviderProps {
 }
 
 export default function AuthContextProvider({ children }: IAuthContextProviderProps) {
-  const [signedIn, setSignedIn] = useState(() => !!localStorage.getItem("accessToken"));
-  console.log(!!localStorage.getItem("accessToken"));
+  const [signedIn, setSignedIn] = useState(() => !!localStorage.getItem("user"));
 
   const signInWithGogle = useCallback(() => {
     const baseURL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -37,10 +36,11 @@ export default function AuthContextProvider({ children }: IAuthContextProviderPr
 
   useLayoutEffect(() => {
     const interceptorId = api.interceptors.request.use((config) => {
-      const accessToken = localStorage.getItem("accessToken");
+      const loadUser = localStorage.getItem("user");
 
-      if (accessToken) {
-        config.headers.Authorization = `Bearer ${accessToken}`;
+      if (loadUser) {
+        const user = JSON.parse(loadUser);
+        config.headers.Authorization = `Bearer ${user.accessToken}`;
       }
 
       return config;
@@ -57,12 +57,16 @@ export default function AuthContextProvider({ children }: IAuthContextProviderPr
       response => response,
       error => {
         if (error.response.status === 401) {
-          localStorage.removeItem("accessToken");
+          localStorage.removeItem("user");
           setSignedIn(false);
           toast.warning('Sessão expirada. Por favor, entre novamente.');
           return Promise.reject(error)
         }
-        toast.error('Ops, aconteceu algum erro!');
+
+        if (error.response.status === 400) {
+          toast.error(error.response.data?.error || 'Ops, aconteceu algum erro!');
+        }
+
         return Promise.reject(error)
       }
     )
@@ -89,10 +93,9 @@ export default function AuthContextProvider({ children }: IAuthContextProviderPr
   }, [])
 
   const signIn = useCallback(async (email: string, password: string, keepLoggedIn: boolean) => {
-    const { accessToken } = await AuthServices.signIn({ email, password, keepLoggedIn });
-
-    localStorage.setItem("accessToken", accessToken);
-
+    const response = await AuthServices.signIn({ email, password, keepLoggedIn });
+    const stringfy = JSON.stringify(response);
+    localStorage.setItem("user", stringfy);
     setSignedIn(true);
   }, []);
 

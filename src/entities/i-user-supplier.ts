@@ -2,14 +2,14 @@
 
 interface AdditionalInfo {
   idUserAdditional: number;
-  typeUser: 'A' | 'S' | 'F' | 'D';
+  typeUser: 'A' | 'S' | 'F';
   userAdditionalCreaOrCau: string | null;
   userAdditionalPassword: string;
   userAdditionalUrlPicture: string | null;
   userInfoIdUser: number;
 }
 
-export interface IUsersSupplier {
+export interface IUser {
   idUser: number
   username: string
   userEmail: string
