@@ -21,9 +21,17 @@ export class UserService {
     return user.data;
   }
 
-  static async update(name: string, email: string) {
-    const user = await api.put<{ status: number, message: string }>('/users', {
+  static async updateMyProfile(name: string, email: string) {
+    const user = await api.put<{ status: number, message: string }>('/update-my-profile', {
       name, email
+    });
+
+    return user.data;
+  }
+
+  static async update(id: number, username: string, useremail: string, typeUser: string, userStatus: string) {
+    const user = await api.put<{ status: number, message: string }>('/users', {
+      username, useremail, typeUser, userStatus, id
     });
 
     return user.data;
@@ -42,7 +50,7 @@ export class UserService {
   }
 
   static async create(username: string, email: string, password: string, retryPassword: string, typeUser: string, userStatus: string) {
-    const user = await api.post<{ status: number, message: string }>('/users', {
+    const user = await api.post<{ id: string }>('/users', {
       username, email, password, retryPassword, typeUser, userStatus,
     });
 

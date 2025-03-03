@@ -18,11 +18,11 @@ function Board({ proposes }: Props) {
   // Função para mapear o status para o ID da coluna
   const getColumnId = (status: string): string => {
     switch (status) {
+      case 'N': return 'new' // novo
       case 'P': return 'progress'; // em andamento
-      case 'M': return 'makeReport'; // fazer laudo
-      case 'T': return 'rebrand'; // remarca
-      case 'D': return 'problemDocs';
-      case 'R': return 'cancelled'; // refused
+      case 'A': return 'accept'; // fazer laudo
+      case 'R': return 'refused'; // refused
+      case 'X': return 'cancelled'
       case 'F': return 'completed';
       default: return 'progress';
     }
@@ -36,37 +36,42 @@ function Board({ proposes }: Props) {
       proposes: {},
       columns: {
         'progress': {
-          id: 'progress', // P
+          id: 'progress',
           title: 'Em Andamento',
           proposeIds: []
         },
-        'makeReport': {
-          id: 'makeReport', // B
+        'accept': {
+          id: 'accept',
           title: 'Fazer Laudo',
           proposeIds: []
         },
-        'rebrand': { // R
-          id: 'rebrand',
-          title: 'Remarca',
-          proposeIds: []
-        },
-        'cancelled': { // C
+        // 'rebrand': { 
+        //   id: 'rebrand',
+        //   title: 'Remarca',
+        //   proposeIds: []
+        // },
+        'cancelled': {
           id: 'cancelled',
           title: 'Cancelado',
           proposeIds: []
         },
-        'problemDocs': {
-          id: 'problemDocs', // E
-          title: 'Problemas Docs',
+        'refused': {
+          id: 'refused',
+          title: 'Recusado',
           proposeIds: []
         },
+        // 'problemDocs': {
+        //   id: 'problemDocs', 
+        //   title: 'Problemas Docs',
+        //   proposeIds: []
+        // },
         'completed': {
-          id: 'completed', // F
+          id: 'completed',
           title: 'Entregue',
           proposeIds: []
         }
       },
-      columnOrder: ['progress', 'makeReport', 'rebrand', 'cancelled', 'problemDocs', 'completed']
+      columnOrder: ['progress', 'accept', 'cancelled', 'refused', 'completed']
     };
 
     // Organizar as propostas nas colunas apropriadas
@@ -169,13 +174,13 @@ function Board({ proposes }: Props) {
   // Função auxiliar para converter ID da coluna em status
   const getStatusFromColumnId = (columnId: string): string => {
     switch (columnId) {
+      case 'new': return 'N';
       case 'progress': return 'P';
-      case 'makeReport': return 'M';
-      case 'rebrand': return 'T'; // remarca try again 
-      case 'problemDocs': return 'D'; // 
-      case 'cancelled': return 'R'; // refused
+      case 'accept': return 'A'; // remarca try again 
+      case 'refused': return 'R'; // 
+      case 'cancelled': return 'X'; // refused
       case 'completed': return 'F';
-      default: return 'P';
+      default: return 'progress';
     }
   };
 

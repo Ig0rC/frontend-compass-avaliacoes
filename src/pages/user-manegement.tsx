@@ -20,9 +20,6 @@ export function UserManegement() {
 
   const loadData = useCallback(async () => {
     try {
-
-      console.log('entrei')
-
       const data = await UserService.list(
         loadQuerys().page || '1',
         loadQuerys().searchTerm || ''

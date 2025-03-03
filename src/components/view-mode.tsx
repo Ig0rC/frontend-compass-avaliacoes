@@ -11,13 +11,12 @@ interface Props {
 export function ViewMode({ toggleView, onToggleViewChange }: Props) {
   const [user] = useState(JSON.parse(localStorage.getItem('user')));
 
-
   return (
     <ToggleGroup value={toggleView} onValueChange={onToggleViewChange} variant="search" size="search" type="single">
       <ToggleGroupItem className="rounded-sm " value="L">
         <FileSpreadsheet size={32} color="black" />
       </ToggleGroupItem>
-      {!user.role === 'F' && (
+      {!(user.role === 'F') && (
         <ToggleGroupItem className="rounded-sm " value="K">
           <SquareKanban size={32} color="black" />
         </ToggleGroupItem>

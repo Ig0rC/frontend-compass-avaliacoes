@@ -35,7 +35,7 @@ export function EditUser() {
       return {
         username: user.username,
         useremail: user.userEmail,
-        typeUser: user.additionalInfo.typeUser,
+        typeUser: user?.additionalInfo?.typeUser || "",
         userStatus: user.userStatus === 'A',
       };
     }
@@ -44,14 +44,15 @@ export function EditUser() {
 
   async function handleSubmit(data: z.infer<typeof formSchema>) {
 
-    // await UserService.create(
-    //   data.username,
-    //   data.useremail,
-    //   data.typeUser,
-    //   data.userStatus ? "A" : "I"
-    // );
+    await UserService.update(
+      Number(id),
+      data.username,
+      data.useremail,
+      data.typeUser,
+      data.userStatus ? "A" : "I",
+    );
 
-    toast.success("Usuário cadastrado com sucesso!");
+    toast.success("Usuário Atualizado com sucesso!!");
   }
 
   return <GenericUserForm form={form} onSubmit={handleSubmit} />;

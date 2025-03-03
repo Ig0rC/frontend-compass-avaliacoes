@@ -17,7 +17,7 @@ interface Props {
     retryPassword?: string;
     userStatus: boolean;
   }>;
-
+  /* eslint-disable-next-line */
   onSubmit: (data: any) => void;
   fieldsToShow?: Array<"password" | "retryPassword">;
 }
@@ -25,7 +25,7 @@ interface Props {
 export function GenericUserForm({ form, onSubmit, fieldsToShow = [] }: Props) {
   return (
     <ContainerFormLayout pathTo="/user-manegement">
-      {form.formState.isLoading && <Loader />}
+      {form.formState.isLoading || form.formState.isSubmitting && <Loader />}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-[62px]">
           <TitleForm title="Usuário" />

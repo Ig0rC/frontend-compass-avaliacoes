@@ -176,6 +176,7 @@ export function EditProcess() {
           <SelectItem value="P">Em Andamento</SelectItem>
           <SelectItem value="R">Recusado</SelectItem>
           <SelectItem value="F">Finalizado</SelectItem>
+          <SelectItem value="X">Cancelado</SelectItem>
         </SelectContent>
       </Select>
 

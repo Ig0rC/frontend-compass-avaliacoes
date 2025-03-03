@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { AuthContext } from '@/context/AuthContext';
-import { IUsersSupplier } from '@/entities/i-user-supplier';
+import { IUser } from '@/entities/i-user-supplier';
 import { ContainerFormLayout } from "@/layouts/ContainerFormLayout";
 import { UserService } from '@/services/user-service';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,7 +27,8 @@ const formSchema = z.object({
 
 export function ProfileUser() {
   const { signOut } = useContext(AuthContext);
-  const [user, setUser] = useState<IUsersSupplier | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
+  const [userlocal] = useState(JSON.parse(localStorage.getItem('user') as string));
 
   useEffect(() => {
     UserService.findProfileData().then(data => {
@@ -51,7 +52,7 @@ export function ProfileUser() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await UserService.update(values.name, values.email);
+      await UserService.updateMyProfile(values.name, values.email);
       toast.success('Atualizado com sucesso!');
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -65,7 +66,7 @@ export function ProfileUser() {
 
 
   return (
-    <ContainerFormLayout>
+    <ContainerFormLayout pathTo="/">
       <TitleForm title="Meu Perfil" />
 
       <div className="flex justify-center mt-2">
@@ -117,9 +118,14 @@ export function ProfileUser() {
 
           <div className="flex flex-col w-full mt-10 gap-[22px]">
             <Button className="w-full" type="submit">Salvar</Button>
-            <Link to="/user-manegement">
-              Controle de Usuários
-            </Link>
+            {userlocal?.role === 'A' && (
+              <Button variant="transparent-default">
+                <Link to="/user-manegement" >
+                  Controle de Usuários
+                </Link>
+              </Button>
+            )}
+
             <Button onClick={signOut} variant="transparent-danger" type="submit">
               <img src={exit} alt="" />
               Sair da conta
