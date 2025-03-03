@@ -1,4 +1,4 @@
-import { IUsersSupplier } from "./i-user-supplier"
+import { IUser } from "./i-user-supplier"
 
 export interface IPropose {
   idProposes: number
@@ -58,8 +58,8 @@ export interface IPropose {
       }
     }
   }
-  user: IUsersSupplier;
-  userSupplier?: IUsersSupplier;
+  user: IUser;
+  userSupplier?: IUser;
   attachments?: {
     id_attachments: number
     attachments_link: string
