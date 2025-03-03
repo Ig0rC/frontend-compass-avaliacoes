@@ -25,7 +25,7 @@ export function EditProcess() {
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [initialValues, setInitialValues] = useState<Partial<ProcessFormData>>({});
-  const [user] = useState(JSON.parse(localStorage.getItem('user')));
+  const [user] = useState(JSON.parse(localStorage.getItem('user') as string));
 
   useEffect(() => {
     async function loadProcess() {

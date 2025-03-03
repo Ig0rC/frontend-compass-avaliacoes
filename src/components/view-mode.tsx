@@ -9,7 +9,7 @@ interface Props {
 
 
 export function ViewMode({ toggleView, onToggleViewChange }: Props) {
-  const [user] = useState(JSON.parse(localStorage.getItem('user')));
+  const [user] = useState(JSON.parse(localStorage.getItem('user') as string));
 
   return (
     <ToggleGroup value={toggleView} onValueChange={onToggleViewChange} variant="search" size="search" type="single">

@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { IUsersSupplier } from "@/entities/i-user-supplier";
+import { IUser } from "@/entities/i-user-supplier";
 import { UserSupplierService } from "@/services/user-supplier-service";
 import { Filter } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -72,7 +72,7 @@ interface Props {
 export function FilterListService({ onLoadData }: Props) {
   const [getQuery, setQuery] = useSearchParams();
 
-  const [usersSupplier, setUsersSupplier] = useState<IUsersSupplier[]>([]);
+  const [usersSupplier, setUsersSupplier] = useState<IUser[]>([]);
   const form = useForm<FormValues>({
     defaultValues: {
       userInfoIdUser: getQuery.get('userInfoIdUser') || '',

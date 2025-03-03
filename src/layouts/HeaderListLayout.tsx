@@ -1,7 +1,7 @@
 import logo from "@/assets/images/logo.png";
 import { PhotoProfile } from "@/components/photo-profile";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { IUsersSupplier } from "@/entities/i-user-supplier";
+import { IUser } from "@/entities/i-user-supplier";
 import { UserService } from "@/services/user-service";
 import { Bell } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { Link, Outlet } from "react-router-dom";
 import { toast } from "sonner";
 
 export function HeaderListLayout() {
-  const [user, setUser] = useState<IUsersSupplier | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   useEffect(() => {
     UserService.findProfileData().then(data => {
       setUser(data);

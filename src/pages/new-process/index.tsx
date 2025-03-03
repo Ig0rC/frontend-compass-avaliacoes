@@ -25,7 +25,7 @@ export function NewProcess() {
   }
 
   return (
-    <ContainerFormLayout>
+    <ContainerFormLayout pathTo="/">
       <ProcessForm
         onSubmit={handleSubmit}
       />

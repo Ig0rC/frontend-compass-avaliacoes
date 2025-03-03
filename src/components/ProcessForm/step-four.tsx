@@ -1,5 +1,5 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { IUsersSupplier } from "@/entities/i-user-supplier";
+import { IUser } from "@/entities/i-user-supplier";
 import { processSchema } from "@/schemas/process-schema";
 import { UserSupplierService } from "@/services/user-supplier-service";
 import { maskCurrency } from "@/utils/maskCurrency";
@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 
 export function StepFour() {
   const [isLoading, setIsLoading] = useState(true);
-  const [usersSupplier, setUsersSupplier] = useState<IUsersSupplier[]>([]);
+  const [usersSupplier, setUsersSupplier] = useState<IUser[]>([]);
   const {
     control,
     watch,
