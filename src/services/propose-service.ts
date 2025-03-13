@@ -104,7 +104,6 @@ export class ProposeService {
 
     const response = await api.get(`/export-proposes?${query}`, {
       responseType: 'blob', // Importante para receber o arquivo
-
     });
 
     return response.data;

@@ -1,6 +1,7 @@
 import exit from '@/assets/images/Exit.svg';
 import pencil from '@/assets/images/pencil.svg';
 import photoUser from '@/assets/images/photo-user.jpeg';
+import { Loader } from '@/components/loader';
 import { TitleForm } from "@/components/TitleForm";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -11,7 +12,7 @@ import { ContainerFormLayout } from "@/layouts/ContainerFormLayout";
 import { UserService } from '@/services/user-service';
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from 'axios';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useForm } from "react-hook-form";
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -27,28 +28,30 @@ const formSchema = z.object({
 
 export function ProfileUser() {
   const { signOut } = useContext(AuthContext);
-  const [user, setUser] = useState<IUser | null>(null);
+
   const [userlocal] = useState(JSON.parse(localStorage.getItem('user') as string));
-
-  useEffect(() => {
-    UserService.findProfileData().then(data => {
-      form.setValue('email', data.userEmail);
-      form.setValue('name', data.username);
-      setUser(data);
-    }).catch(() => {
-      toast.error('Erro ao carregar dados do usuário')
-    })
-  }, []);
-
-
+  const [user, setUser] = useState<IUser | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      name: '',
-    },
+    defaultValues: async () => {
+      try {
+        const data = await UserService.findProfileData();
+        setUser(data);
+        return {
+          email: data.userEmail,
+          name: data.username,
+        }
+      } catch {
+        toast.error('Não foi possível carregar os dados do perfil.')
+        return {
+          email: '',
+          name: '',
+        }
+      }
+    }
   });
+
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -67,6 +70,7 @@ export function ProfileUser() {
 
   return (
     <ContainerFormLayout pathTo="/">
+      {form.formState.isLoading && <Loader />}
       <TitleForm title="Meu Perfil" />
 
       <div className="flex justify-center mt-2">
@@ -118,9 +122,10 @@ export function ProfileUser() {
 
           <div className="flex flex-col w-full mt-10 gap-[22px]">
             <Button className="w-full" type="submit">Salvar</Button>
+
             {userlocal?.role === 'A' && (
-              <Button variant="transparent-default">
-                <Link to="/user-manegement" >
+              <Button variant="transparent-default" type="button">
+                <Link to="/user-manegement" className="w-full" >
                   Controle de Usuários
                 </Link>
               </Button>

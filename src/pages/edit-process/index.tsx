@@ -32,7 +32,7 @@ export function EditProcess() {
       if (id) {
         try {
           const process = await ProposeService.getById(id);
-          console.log(process)
+
           setStatus(process.proposeStatus);
 
           setInitialValues(ProposeMapper.toDomain(process));
@@ -128,20 +128,17 @@ export function EditProcess() {
       if (initialValues?.idProposes) {
         const data = await ProposeService.getExportPropose(initialValues.idProposes);
 
-        // Criar URL do blob
         const blob = new Blob([data], {
           type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         })
         const url = window.URL.createObjectURL(blob)
 
-        // Criar link e fazer download
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', 'relatorio.xlsx')
+        link.setAttribute('download', `processo-${initialValues.idProposes}.xlsm`)
         document.body.appendChild(link)
         link.click()
 
-        // Cleanup
         window.URL.revokeObjectURL(url)
         document.body.removeChild(link)
       }
