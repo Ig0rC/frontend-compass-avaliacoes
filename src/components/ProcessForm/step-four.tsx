@@ -80,7 +80,7 @@ export function StepFour() {
   return (
     <>
       {isLoading && <Loader />}
-      <TitleForm title="Cliente" />
+      <TitleForm title="Prestador" />
 
 
       <FormField

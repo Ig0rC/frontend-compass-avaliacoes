@@ -16,7 +16,7 @@ export function StepThree() {
 
   return (
     <>
-      <TitleForm title="Prestador" />
+      <TitleForm title="Cliente" />
 
       <FormField
         control={control}
