@@ -16,7 +16,6 @@ import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
-
 interface ILoadParamsData {
   inspectionDateTo?: string;
   inspectionDateFrom?: string;
@@ -27,6 +26,8 @@ interface ILoadParamsData {
   proposeStatus?: string | string[];
   searchTerm?: string;
 }
+
+
 
 export function ListServices() {
   const [toggleView, setToggleView] = useState<'L' | 'K'>(
@@ -65,6 +66,9 @@ export function ListServices() {
       return params;
     });
   }
+
+
+
 
   async function handleExportProposes() {
     try {
@@ -130,8 +134,6 @@ export function ListServices() {
     setToggleView(value);
     localStorage.setItem('toggleView', value);
   }
-
-
 
   async function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter') {
