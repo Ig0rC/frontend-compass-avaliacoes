@@ -91,37 +91,22 @@ export function FilterListService({ onLoadData }: Props) {
 
 
   function handleFilterClear() {
+    form.reset();
+
+
     setQuery((prev) => {
       const params = new URLSearchParams(prev);
-
-      // Salva os valores de 'page' e 'searchTerm'
       const page = params.get('page') || '1';
-      const searchTerm = params.get('searchTerm');
+      const searchTerm = params.get('searchTerm') || '';
 
-      // Limpa todos os parâmetros
-      params.delete('proposeStatus');
-      params.delete('inspectionStatus');
-      params.delete('userInfoIdUser');
-      params.delete('inspectionDateFrom');
-      params.delete('inspectionDateTo');
-      params.delete('proposeDateFrom');
-      params.delete('proposeDateTo');
+      const newParams = new URLSearchParams({
+        'page': page,
+        'searchTerm': searchTerm,
+      })
 
-      // Redefine apenas 'page' e 'searchTerm' se tiverem valor
-      params.set('page', page);
-
-      if (searchTerm) {
-        params.set('searchTerm', searchTerm);
-      }
-
-      return params.toString();
+      return newParams;
     });
 
-    form.reset({
-      userInfoIdUser: '',
-      proposeStatus: [],
-      inspectionStatus: [],
-    });
 
     onLoadData({
       page: 1,
@@ -212,7 +197,7 @@ export function FilterListService({ onLoadData }: Props) {
 
             <div className="flex gap-2 justify-between">
               <p>Filtro</p>
-              <button type="submit" onClick={handleFilterClear} className="text-[#C38E73] text-sm hover:underline">
+              <button type="button" onClick={handleFilterClear} className="text-[#C38E73] text-sm hover:underline">
                 Limpar
               </button>
             </div>

@@ -39,19 +39,7 @@ export function StepFour() {
     loadUserSupplier()
   }, [loadUserSupplier]);
 
-  // useEffect(() => {
-  //   const userSupllier = usersSupplier.find((userSupllier) => userSupllier.idUser === Number(userSupllierid));
 
-  //   if (userSupllier) {
-  //     setValue('userSupplier.userEmail', userSupllier.userEmail)
-  //     setValue('userSupplier.userDoc', userSupllier.userDoc);
-  //     setValue('userSupplier.username', userSupllier.username);
-  //     setValue('userSupplier.userPhoneNumber', userSupllier.userPhone);
-  //     setValue('userSupplier.userCreaOrCau', userSupllier.additionalInfo?.userAdditionalCreaOrCau || '');
-  //   }
-
-
-  // }, [userSupllierid, usersSupplier]);
 
   function handleUserSupplierIdChange(value: string) {
     setValue('userSupplier.userId', value);
@@ -72,7 +60,7 @@ export function StepFour() {
       setValue('userSupplier.userEmail', userSupllier.userEmail)
       setValue('userSupplier.userDoc', userSupllier.userDoc);
       setValue('userSupplier.username', userSupllier.username);
-      setValue('userSupplier.userPhoneNumber', userSupllier.userPhone);
+      setValue('userSupplier.userPhoneNumber', '');
       setValue('userSupplier.userCreaOrCau', userSupllier.additionalInfo?.userAdditionalCreaOrCau || '');
     }
   }

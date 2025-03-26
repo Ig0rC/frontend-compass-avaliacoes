@@ -20,8 +20,6 @@ export function useQuery() {
     });
   }
 
-
-
   const loadQuerys = useCallback(() => {
     return {
       page: getQuery.get('page') || pagination.currentPage,

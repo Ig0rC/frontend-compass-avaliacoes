@@ -49,9 +49,7 @@ export function ListServices() {
       setProposes(data.proposes);
       setPagination(data.pagination);
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000)
+      setIsLoading(false);
     }
   }, [])
 
@@ -66,9 +64,6 @@ export function ListServices() {
       return params;
     });
   }
-
-
-
 
   async function handleExportProposes() {
     try {

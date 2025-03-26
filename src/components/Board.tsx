@@ -14,11 +14,11 @@ interface Props {
 
 function Board({ proposes }: Props) {
   const [data, setData] = useState<KanbanData>(initialData);
-
+  console.log(proposes)
   // Função para mapear o status para o ID da coluna
   const getColumnId = (status: string): string => {
     switch (status) {
-      case 'N': return 'new' // novo
+      case 'N': return 'accept' // novo
       case 'P': return 'progress'; // em andamento
       case 'A': return 'accept'; // fazer laudo
       case 'R': return 'refused'; // refused
@@ -76,11 +76,13 @@ function Board({ proposes }: Props) {
 
     // Organizar as propostas nas colunas apropriadas
     proposes.forEach(propose => {
-      // Adicionar a proposta ao objeto de propostas
       newData.proposes[propose.idProposes] = propose;
+
+      console.log(newData);
 
       // Adicionar o ID da proposta à coluna apropriada
       const columnId = getColumnId(propose.proposeStatus);
+      console.log(newData.columns[columnId])
       newData.columns[columnId].proposeIds.push(propose.idProposes);
     });
 
@@ -88,12 +90,8 @@ function Board({ proposes }: Props) {
   }, [proposes]);
 
   useEffect(() => {
-    if (proposes.length) {
-      organizeProposes()
-    }
-  }, [organizeProposes, proposes])
-
-  // Carregar dados do backend
+    organizeProposes()
+  }, [organizeProposes])
 
   const onDragEnd = async (result: DropResult) => {
     const { destination, source, draggableId } = result;
