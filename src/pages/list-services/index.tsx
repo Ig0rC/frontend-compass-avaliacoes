@@ -11,7 +11,7 @@ import { IPropose } from "@/entities/ipropose";
 import { useQuery } from "@/hooks/use-Query";
 import { processSchema } from "@/schemas/process-schema";
 import { ProposeService } from "@/services/propose-service";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -22,29 +22,37 @@ export function ListServices() {
   const [toggleView, setToggleView] = useState<'L' | 'K'>(
     localStorage.getItem('toggleView') as 'L' | 'K' || 'L'
   );
-  const { pageNext, pagePrevious, pagination, setPagination, pageMove, filters, onSearchTermChange, onFilterChange, clearFilter, loadFilters } = useQuery();
+  const { pageNext, pagePrevious, pagination, setPagination, pageMove, filters, onSearchTermChange, onFilterChange, clearFilter } = useQuery('filters');
   const [isLoading, setIsLoading] = useState(true);
   const [proposes, setProposes] = useState<IPropose[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  console.log(proposes)
+  const [searchTerm, setSearchTerm] = useState(filters?.searchTerm || '');
+  const render = useRef(1);
+
   const loadData = useCallback(async () => {
     try {
       if (!filters) {
         return;
       }
+
+      if (!isLoading) {
+        setIsLoading(true);
+      }
+
       const data = await ProposeService.getProposes({
         ...filters,
       });
 
-      setSearchTerm(filters.searchTerm)
+      console.log(render.current, data);
+
+
       setProposes(data.proposes);
       setPagination(data.pagination);
+      render.current = 2
     } finally {
-      if (filters) {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 300)
-      }
+      // alert('fim')
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000)
     }
   }, [filters])
 
@@ -125,11 +133,11 @@ export function ListServices() {
       await loadData();
     }
 
-    if (event.key === 'Backspace' && event.currentTarget.value.length === 1) {
-      setIsLoading(true);
-      onSearchTermChange(searchTerm)
-      await loadData();
-    }
+    // if (event.key === 'Backspace' && event.currentTarget.value.length === 1) {
+    //   setIsLoading(true);
+    //   onSearchTermChange(searchTerm)
+    //   await loadData();
+    // }
   };
 
   async function handleUpdatePropose(selectedPropose: IPropose, data: z.infer<typeof processSchema>) {
@@ -165,6 +173,7 @@ export function ListServices() {
 
         <header className="flex justify-between">
           <InputSearch
+            value={searchTerm}
             onChange={handleSearchTerm}
             onKeyDown={handleKeyDown}
           />

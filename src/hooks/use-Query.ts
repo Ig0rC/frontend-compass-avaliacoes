@@ -23,7 +23,7 @@ export interface IFiltersChange {
   inspectionStatus?: string[],
 }
 
-export function useQuery() {
+export function useQuery(filter: 'filtersUser' | 'filters' = 'filters') {
   const [pagination, setPagination] = useState({
     currentPage: 1,
     pageSize: 10,
@@ -36,13 +36,13 @@ export function useQuery() {
   const [filters, setFilters] = useState<IFilters | null>(null);
 
   function updateStorage(filters: IFilters) {
-    localStorage.setItem('filters', JSON.stringify({
+    localStorage.setItem(filter, JSON.stringify({
       ...filters,
     }))
   }
 
   const loadFilters = useCallback(() => {
-    const filtersStorage = localStorage.getItem('filters');
+    const filtersStorage = localStorage.getItem(filter);
 
     if (filtersStorage) {
       setFilters(JSON.parse(filtersStorage))
@@ -56,7 +56,6 @@ export function useQuery() {
 
 
   useLayoutEffect(() => {
-    console.log('here');
     loadFilters()
   }, [loadFilters])
 

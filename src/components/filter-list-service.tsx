@@ -35,7 +35,7 @@ interface Props {
 
 
 export function FilterListService({ onFilterChange, onClearFilter, filters }: Props) {
-  console.log(filters)
+
   const [usersSupplier, setUsersSupplier] = useState<IUser[]>([]);
   const form = useForm<FormValues>({
     defaultValues: {

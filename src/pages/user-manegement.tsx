@@ -16,13 +16,17 @@ import { Link } from "react-router-dom";
 export function UserManegement() {
   const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState<IUser[]>([]);
-  const { pageNext, pagePrevious, pagination, setPagination, loadQuerys, pageMove, setQuery } = useQuery();
-
+  const { pageNext, pagePrevious, pagination, setPagination, pageMove, filters, onSearchTermChange } = useQuery('filtersUser');
+  const [searchTerm, setSearchTerm] = useState('');
   const loadData = useCallback(async () => {
     try {
+      if (!filters) {
+        return;
+      }
+
       const data = await UserService.list(
-        loadQuerys().page || '1',
-        loadQuerys().searchTerm || ''
+        filters.page,
+        filters.searchTerm
       );
 
       setUsers(data.users);
@@ -32,7 +36,7 @@ export function UserManegement() {
         setIsLoading(false);
       }, 1000)
     }
-  }, [loadQuerys, setPagination])
+  }, [filters])
 
   useEffect(() => {
     loadData();
@@ -56,12 +60,23 @@ export function UserManegement() {
     pageMove(pageNumber);
   }
 
+  async function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Enter') {
+      setIsLoading(true);
+      onSearchTermChange(searchTerm)
+      await loadData();
+    }
+
+    if (event.key === 'Backspace' && event.currentTarget.value.length === 1) {
+      setIsLoading(true);
+      onSearchTermChange(searchTerm)
+      await loadData();
+    }
+  };
+
+
   async function handleSearchTerm(e: ChangeEvent<HTMLInputElement>) {
-    setQuery((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set('search', e.target.value)
-      return params;
-    });
+    setSearchTerm(e.target.value);
   }
 
   return (
@@ -70,6 +85,7 @@ export function UserManegement() {
 
       <InputSearch
         onChange={handleSearchTerm}
+        onKeyDown={handleKeyDown}
       />
 
       <Link to="/" className="flex items-center underline flex-start gap-2 mt-11 mb-10 box-border min-w-[180px]">
