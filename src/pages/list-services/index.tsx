@@ -12,20 +12,9 @@ import { useQuery } from "@/hooks/use-Query";
 import { processSchema } from "@/schemas/process-schema";
 import { ProposeService } from "@/services/propose-service";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
-interface ILoadParamsData {
-  inspectionDateTo?: string;
-  inspectionDateFrom?: string;
-  proposeDateTo?: string;
-  proposeDateFrom?: string;
-  userInfoIdUser?: string;
-  page?: string | number;
-  proposeStatus?: string | string[];
-  searchTerm?: string;
-}
 
 
 
@@ -33,49 +22,56 @@ export function ListServices() {
   const [toggleView, setToggleView] = useState<'L' | 'K'>(
     localStorage.getItem('toggleView') as 'L' | 'K' || 'L'
   );
-  const [getQuery, setQuery] = useSearchParams();
-  const { pageNext, pagePrevious, pagination, setPagination, loadQuerys, pageMove } = useQuery();
+  const { pageNext, pagePrevious, pagination, setPagination, pageMove, filters, onSearchTermChange, onFilterChange, clearFilter, loadFilters } = useQuery();
   const [isLoading, setIsLoading] = useState(true);
   const [proposes, setProposes] = useState<IPropose[]>([]);
-
-  const loadData = useCallback(async (params: ILoadParamsData) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  console.log(proposes)
+  const loadData = useCallback(async () => {
     try {
+      if (!filters) {
+        return;
+      }
       const data = await ProposeService.getProposes({
-        ...params,
-        page: params.page || loadQuerys().page,
-        searchTerm: params.searchTerm || loadQuerys().searchTerm
+        ...filters,
       });
 
+      setSearchTerm(filters.searchTerm)
       setProposes(data.proposes);
       setPagination(data.pagination);
     } finally {
-      setIsLoading(false);
+      if (filters) {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 300)
+      }
     }
-  }, [])
+  }, [filters])
 
   useEffect(() => {
-    loadData({});
+    loadData();
   }, [loadData]);
 
   async function handleSearchTerm(e: ChangeEvent<HTMLInputElement>) {
-    setQuery((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set('search', e.target.value)
-      return params;
-    });
+    setSearchTerm(e.target.value);
   }
 
   async function handleExportProposes() {
     try {
+      if (!filters) {
+        toast.error('Filtro não foi carregado corretamente!')
+        return;
+      }
+      setIsLoading(true);
       const data = await ProposeService.getExportProposes({
-        searchTerm: getQuery.get('searchTerm') || '',
-        inspectionDateFrom: getQuery.get('inspectionDateFrom') ? new Date(getQuery.get('inspectionDateFrom')!).toISOString() : undefined,
-        inspectionDateTo: getQuery.get('inspectionDateTo') ? new Date(getQuery.get('inspectionDateTo')!).toISOString() : undefined,
-        proposeDateFrom: getQuery.get('proposeDateFrom') ? new Date(getQuery.get('proposeDateFrom')!).toISOString() : undefined,
-        proposeDateTo: getQuery.get('proposeDateTo') ? new Date(getQuery.get('proposeDateTo')!).toISOString() : undefined,
-        proposeStatus: getQuery.get('proposeStatus') ? JSON.parse(getQuery.get('proposeStatus')!) : undefined,
-        userInfoIdUser: getQuery.get('userInfoIdUser') || undefined,
-        inspectionStatus: getQuery.get('inspectionStatus') ? JSON.parse(getQuery.get('inspectionStatus')!) : undefined,
+        searchTerm: filters.searchTerm,
+        inspectionDateFrom: filters.inspectionDateFrom,
+        inspectionDateTo: filters.inspectionDateTo,
+        proposeDateFrom: filters.proposeDateFrom,
+        proposeDateTo: filters.proposeDateTo,
+        proposeStatus: filters.proposeStatus,
+        userInfoIdUser: filters.userInfoIdUser,
+        inspectionStatus: filters.inspectionStatus,
       });
 
       // Criar URL do blob
@@ -97,32 +93,24 @@ export function ListServices() {
       toast.success('Arquivo exportado com sucesso')
     } catch {
       toast.error('Erro ao exportar arquivo')
+    } finally {
+      setIsLoading(false);
     }
   }
 
   async function handlePageNext() {
     setIsLoading(true);
-    const nextPageNumber = pageNext();
-
-    await loadData({
-      page: nextPageNumber,
-    })
+    pageNext();
   }
 
   async function handlePagePrevious() {
     setIsLoading(true);
-    const previousPageNumber = pagePrevious();
-
-    await loadData({
-      page: previousPageNumber,
-    })
+    pagePrevious();
   }
 
   async function handlePageMove(pageNumber: string | number) {
     setIsLoading(true);
-    await loadData({
-      page: pageMove(pageNumber),
-    })
+    pageMove(pageNumber);
   }
 
   function handleToggleViewChange(value: 'L' | 'K') {
@@ -133,31 +121,16 @@ export function ListServices() {
   async function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter') {
       setIsLoading(true);
-      setQuery((prev) => {
-        const params = new URLSearchParams(prev);
-        params.set('page', '1')
-        return params;
-      });
-      await loadData({
-        searchTerm: event.currentTarget.value,
-        page: 1,
-      });
+      onSearchTermChange(searchTerm)
+      await loadData();
     }
 
     if (event.key === 'Backspace' && event.currentTarget.value.length === 1) {
       setIsLoading(true);
-      setQuery((prev) => {
-        const params = new URLSearchParams(prev);
-        params.set('page', '1')
-        return params;
-      });
-      await loadData({
-        searchTerm: event.currentTarget.value,
-        page: 1,
-      });
+      onSearchTermChange(searchTerm)
+      await loadData();
     }
   };
-
 
   async function handleUpdatePropose(selectedPropose: IPropose, data: z.infer<typeof processSchema>) {
     try {
@@ -185,7 +158,6 @@ export function ListServices() {
     }
   };
 
-
   if (toggleView === 'K') {
     return (
       <>
@@ -198,7 +170,7 @@ export function ListServices() {
           />
 
           <div className="flex items-end gap-1 ml-10">
-            <FilterListService onLoadData={loadData} />
+            <FilterListService key={filters?.page} filters={filters} onClearFilter={clearFilter} onFilterChange={onFilterChange} />
             <ViewMode
               toggleView={toggleView}
               onToggleViewChange={handleToggleViewChange}
@@ -210,20 +182,19 @@ export function ListServices() {
     )
   }
 
-
   return (
     <div className="h-full">
       {isLoading && <Loader />}
       <header className="flex justify-between">
         <InputSearch
           onChange={handleSearchTerm}
+          value={searchTerm}
           onKeyDown={handleKeyDown}
-
         />
 
 
         <div className="flex items-end gap-1 ml-10">
-          <FilterListService onLoadData={loadData} />
+          <FilterListService key={filters?.page} filters={filters} onClearFilter={clearFilter} onFilterChange={onFilterChange} />
           <ViewMode
             toggleView={toggleView}
             onToggleViewChange={handleToggleViewChange}
@@ -250,7 +221,6 @@ export function ListServices() {
           pagination={pagination}
           pathTo="/new-process"
           buttonName="Novo Processo"
-
         />
       </div>
     </div>

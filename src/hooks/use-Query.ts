@@ -1,8 +1,29 @@
-import { useCallback, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useCallback, useLayoutEffect, useState } from "react";
+
+
+export interface IFilters {
+  searchTerm: string,
+  page: number,
+  inspectionDateFrom?: Date,
+  inspectionDateTo?: Date,
+  proposeDateFrom?: Date,
+  proposeDateTo?: Date,
+  proposeStatus?: string[],
+  userInfoIdUser?: string,
+  inspectionStatus?: string[],
+}
+
+export interface IFiltersChange {
+  inspectionDateFrom?: Date,
+  inspectionDateTo?: Date,
+  proposeDateFrom?: Date,
+  proposeDateTo?: Date,
+  proposeStatus?: string[],
+  userInfoIdUser?: string,
+  inspectionStatus?: string[],
+}
 
 export function useQuery() {
-  const [getQuery, setQuery] = useSearchParams();
   const [pagination, setPagination] = useState({
     currentPage: 1,
     pageSize: 10,
@@ -12,47 +33,155 @@ export function useQuery() {
     hasPreviousPage: false,
   });
 
-  function updateQuery(pageNumber: string | number) {
-    setQuery((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set('page', pageNumber.toString())
-      return params;
-    });
+  const [filters, setFilters] = useState<IFilters | null>(null);
+
+  function updateStorage(filters: IFilters) {
+    localStorage.setItem('filters', JSON.stringify({
+      ...filters,
+    }))
   }
 
-  const loadQuerys = useCallback(() => {
-    return {
-      page: getQuery.get('page') || pagination.currentPage,
-      searchTerm: getQuery.get('search') || '',
+  const loadFilters = useCallback(() => {
+    const filtersStorage = localStorage.getItem('filters');
+
+    if (filtersStorage) {
+      setFilters(JSON.parse(filtersStorage))
+    } else {
+      setFilters({
+        page: 1,
+        searchTerm: '',
+      })
     }
-  }, [getQuery, pagination.currentPage])
+  }, []);
+
+
+  useLayoutEffect(() => {
+    console.log('here');
+    loadFilters()
+  }, [loadFilters])
+
+  function onFilterChange(filters: IFiltersChange) {
+    setFilters(prevState => {
+      let newState: IFilters;
+      if (prevState) {
+        newState = {
+          ...prevState,
+          ...filters,
+        }
+      } else {
+        newState = {
+          page: 1,
+          searchTerm: '',
+          ...filters,
+        };
+      }
+      updateStorage(newState);
+
+      return newState;
+    })
+  }
+
+  function clearFilter() {
+    setFilters(prevState => {
+      let newState: IFilters;
+      if (prevState) {
+        newState = {
+          page: prevState.page,
+          searchTerm: prevState.searchTerm,
+        }
+      } else {
+        newState = {
+          page: 1,
+          searchTerm: '',
+        };
+      }
+
+      updateStorage(newState);
+
+      return newState;
+    })
+  }
+
+  function onSearchTermChange(searchTerm: string) {
+    setFilters(prevState => {
+      let newState: IFilters;
+
+      if (prevState) {
+        newState = {
+          ...prevState,
+          searchTerm,
+        }
+      } else {
+        newState = {
+          page: 1,
+          searchTerm: ''
+        }
+      }
+      updateStorage(newState);
+
+      return newState;
+    })
+  }
 
   function pageNext() {
-    const nextPageNumber = Number(loadQuerys().page) + 1;
+    setFilters(prevState => {
+      let newState: IFilters;
 
-    updateQuery(nextPageNumber)
+      if (prevState && filters?.page) {
+        newState = {
+          ...prevState,
+          page: filters.page + 1,
+        }
+        updateStorage(newState);
 
-    return nextPageNumber;
+        return newState;
+      }
+
+
+      return null;
+    })
   }
 
   function pageMove(pageNumber: string | number) {
-    updateQuery(pageNumber)
+    setFilters(prevState => {
+      let newState: IFilters;
 
-    return pageNumber;
+      if (prevState && filters?.page) {
+        newState = {
+          ...prevState,
+          page: Number(pageNumber),
+        }
+        updateStorage(newState);
+
+        return newState;
+      }
+
+      return null;
+    })
   }
 
-
   function pagePrevious() {
-    const previousPageNumber = Number(loadQuerys().page) - 1;
+    setFilters(prevState => {
+      let newState: IFilters;
 
-    updateQuery(previousPageNumber)
+      if (prevState && filters?.page) {
+        newState = {
+          ...prevState,
+          page: filters.page - 1,
+        }
+        updateStorage(newState);
 
-    return previousPageNumber;
+        return newState;
+      }
+
+
+      return null;
+    })
   }
 
   return {
-    pageNext, pagePrevious,
-    pagination, setPagination,
-    loadQuerys, pageMove, setQuery
+    pageNext, pagePrevious, setFilters, clearFilter,
+    pagination, setPagination, filters, onFilterChange,
+    loadFilters, pageMove, onSearchTermChange
   }
 }

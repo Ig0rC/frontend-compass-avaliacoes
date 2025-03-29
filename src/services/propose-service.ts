@@ -19,25 +19,29 @@ interface IGetProposesResponse {
 }
 
 interface IGetProposesParams {
-  inspectionDateTo?: string;
-  inspectionDateFrom?: string;
-  proposeDateTo?: string;
-  proposeDateFrom?: string;
+  page: number;
+  searchTerm: string;
+  inspectionDateFrom?: Date;
+  inspectionDateTo?: Date;
+  proposeDateFrom?: Date;
+  proposeDateTo?: Date;
   userInfoIdUser?: string;
-  page?: number | string;
-  proposeStatus?: string | string[]
-  searchTerm?: string;
+  proposeStatus?: string | string[];
+  inspectionStatus?: string[],
 }
 
+
+
+
 interface IGetExportProposesParams {
-  inspectionDateTo?: string;
-  inspectionDateFrom?: string;
-  proposeDateTo?: string;
-  proposeDateFrom?: string;
+  inspectionDateTo?: Date;
+  inspectionDateFrom?: Date;
+  proposeDateTo?: Date;
+  proposeDateFrom?: Date;
   userInfoIdUser?: string;
   proposeStatus?: string | string[]
   searchTerm?: string;
-  inspectionStatus: string | string[];
+  inspectionStatus?: string | string[];
 }
 
 export class ProposeService {

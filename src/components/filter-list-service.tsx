@@ -7,111 +7,67 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { IUser } from "@/entities/i-user-supplier";
+import { IFilters, IFiltersChange } from "@/hooks/use-Query";
 import { UserSupplierService } from "@/services/user-supplier-service";
 import { Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { useForm } from "react-hook-form";
-import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DatePickerWithRange } from "./ui/dateRangePicker";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 
-// const schema = z.object({
-//   userInfoIdUser: z.string().optional(),
-//   proposeDateRange: z.object({
-//     from: z.date().transform(val => val || undefined), // from é required, mas pode ser undefined
-//     to: z.date().optional()
-//   }),
-//   inspectionDateRange: z.object({
-//     from: z.date().transform(val => val || undefined), // from é required, mas pode ser undefined
-//     to: z.date().optional()
-//   }),
-//   proposeStatus: z.union([
-//     z.array(z.string()),
-//     z.string().transform((val) => [val]),
-//     z.undefined(),
-//   ]),
-//   inspectionStatus: z.union([
-//     z.array(z.string()),
-//     z.string().transform((val) => [val]),
-//     z.undefined(),
-//   ]),
-// });
-
-
 interface FormValues {
   userInfoIdUser?: string;
   proposeDateRange: DateRange;
   inspectionDateRange: DateRange;
-  proposeStatus: string[] | undefined;
-  inspectionStatus: string[] | undefined;
+  proposeStatus: string[];
+  inspectionStatus: string[];
 }
-
-
-interface ILoadParamsData {
-  inspectionDateTo?: string;
-  inspectionDateFrom?: string;
-  proposeDateTo?: string;
-  proposeDateFrom?: string;
-  userInfoIdUser?: string;
-  searchTerm?: string | undefined;
-  page: number | string;
-  proposeStatus?: string | string[]
-  inspectionStatus?: string | string[];
-}
-
 
 
 interface Props {
-  onLoadData(parmas: ILoadParamsData): Promise<void>
+  onFilterChange(filters: IFiltersChange): void
+  onClearFilter(): void;
+  filters: IFilters | null;
 }
 
 
-export function FilterListService({ onLoadData }: Props) {
-  const [getQuery, setQuery] = useSearchParams();
-
+export function FilterListService({ onFilterChange, onClearFilter, filters }: Props) {
+  console.log(filters)
   const [usersSupplier, setUsersSupplier] = useState<IUser[]>([]);
   const form = useForm<FormValues>({
     defaultValues: {
-      userInfoIdUser: getQuery.get('userInfoIdUser') || '',
+      userInfoIdUser: filters?.userInfoIdUser ?? '',
       proposeDateRange: {
-        from: getQuery.get('proposeDateFrom') ? new Date(getQuery.get('proposeDateFrom')!) : undefined,
-        to: getQuery.get('proposeDateTo') ? new Date(getQuery.get('proposeDateTo')!) : undefined,
+        from: filters?.proposeDateFrom ? new Date(filters.proposeDateFrom) : undefined,
+        to: filters?.proposeDateTo ? new Date(filters.proposeDateTo) : undefined,
       },
       inspectionDateRange: {
-        from: getQuery.get('inspectionDateFrom') ? new Date(getQuery.get('inspectionDateFrom')!) : undefined,
-        to: getQuery.get('inspectionDateTo') ? new Date(getQuery.get('inspectionDateTo')!) : undefined,
+        from: filters?.inspectionDateFrom ? new Date(filters.inspectionDateFrom) : undefined,
+        to: filters?.inspectionDateTo ? new Date(filters.inspectionDateTo) : undefined,
       },
-      proposeStatus: getQuery.get('proposeStatus') ? JSON.parse(getQuery.get('proposeStatus')!) : [],
-      inspectionStatus: getQuery.get('inspectionStatus') ? JSON.parse(getQuery.get('inspectionStatus')!) : [],
+      proposeStatus: filters?.proposeStatus ?? [],
+      inspectionStatus: filters?.inspectionStatus ?? [],
     }
   });
 
-
   function handleFilterClear() {
-    form.reset();
-
-
-    setQuery((prev) => {
-      const params = new URLSearchParams(prev);
-      const page = params.get('page') || '1';
-      const searchTerm = params.get('searchTerm') || '';
-
-      const newParams = new URLSearchParams({
-        'page': page,
-        'searchTerm': searchTerm,
-      })
-
-      return newParams;
+    form.reset({
+      userInfoIdUser: '',
+      proposeDateRange: {
+        from: undefined,
+        to: undefined,
+      },
+      inspectionDateRange: {
+        from: undefined,
+        to: undefined,
+      },
+      inspectionStatus: [],
+      proposeStatus: [],
     });
-
-
-    onLoadData({
-      page: 1,
-      searchTerm: '',
-    });
+    onClearFilter();
   }
 
   useEffect(() => {
@@ -121,69 +77,17 @@ export function FilterListService({ onLoadData }: Props) {
   }, []);
 
   async function onSubmit(data: FormValues) {
-    setQuery((prev) => {
-      const params = new URLSearchParams(prev);
-
-      // Definindo todos os parâmetros
-      params.set('page', '1');
-      params.set('searchTerm', prev.get('search') || '');
-
-      if (data.inspectionDateRange?.from) {
-        params.set('inspectionDateFrom', data.inspectionDateRange.from.toISOString());
-      } else {
-        params.delete('inspectionDateFrom');
-      }
-
-      if (data.inspectionDateRange?.to) {
-        params.set('inspectionDateTo', data.inspectionDateRange.to.toISOString());
-      } else {
-        params.delete('inspectionDateTo');
-      }
-
-      if (data.proposeDateRange?.from) {
-        params.set('proposeDateFrom', data.proposeDateRange.from.toISOString());
-      } else {
-        params.delete('proposeDateFrom');
-      }
-
-      if (data.proposeDateRange?.to) {
-        params.set('proposeDateTo', data.proposeDateRange.to.toISOString());
-      } else {
-        params.delete('proposeDateTo');
-      }
-
-      if (data.proposeStatus) {
-        params.set('proposeStatus', JSON.stringify(data.proposeStatus));
-      } else {
-        params.delete('proposeStatus');
-      }
-
-      if (data.userInfoIdUser) {
-        params.set('userInfoIdUser', data.userInfoIdUser.toString());
-      } else {
-        params.delete('userInfoIdUser');
-      }
-
-      if (data.inspectionStatus) {
-        params.set('inspectionStatus', JSON.stringify(data.inspectionStatus));
-      } else {
-        params.delete('inspectionStatus');
-      }
-
-      return params.toString();
-    });
-
-    await onLoadData({
-      page: 1,
-      searchTerm: '',
-      inspectionDateFrom: data.inspectionDateRange?.from?.toISOString(),
-      inspectionDateTo: data.inspectionDateRange?.to?.toISOString(),
-      proposeDateFrom: data.proposeDateRange?.from?.toISOString(),
-      proposeDateTo: data.proposeDateRange?.to?.toISOString(),
+    const filters = {
+      inspectionDateFrom: data.inspectionDateRange?.from,
+      inspectionDateTo: data.inspectionDateRange?.to,
+      proposeDateFrom: data.proposeDateRange?.from,
+      proposeDateTo: data.proposeDateRange?.to,
       proposeStatus: data.proposeStatus,
       userInfoIdUser: data.userInfoIdUser,
       inspectionStatus: data.inspectionStatus
-    });
+    }
+
+    onFilterChange(filters)
   }
 
   return (

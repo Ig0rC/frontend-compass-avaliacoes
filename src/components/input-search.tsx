@@ -1,6 +1,5 @@
 import { Search } from "lucide-react";
 import { InputHTMLAttributes } from "react";
-import { useSearchParams } from "react-router-dom";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
@@ -8,7 +7,6 @@ type Props = InputHTMLAttributes<HTMLInputElement>;
 
 
 export function InputSearch(props: Props) {
-  const [getQuery] = useSearchParams();
 
 
   return (
@@ -22,7 +20,6 @@ export function InputSearch(props: Props) {
         <Input
           {...props}
           placeholder="Pesquisar"
-          value={getQuery.get("search") ?? ''}
           className="h-[46px] pl-[75.25px]"
         />
       </div>

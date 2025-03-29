@@ -29,12 +29,6 @@ export function HeaderListLayout() {
 
     const ws = new WebSocket('ws://localhost:3000/notification-ws');// URL do servidor
 
-    ws.onopen = () => {
-      console.log('entrou');
-      console.log('Conectado ao WebSocket');
-    };
-
-
     ws.onmessage = async (event) => {
       if (event.data) {
         console.log(data);
@@ -105,10 +99,8 @@ export function HeaderListLayout() {
     }).catch(() => {
       toast.error('Erro ao carregar dados do usuário')
     });
-
-
   }, [])
-  console.log(notifications);
+
   return (
     <div className="px-[40px] box-border w-full m-auto h-full flex flex-col bg-[#FAFAFA]">
       <header className="bg-grey-50 flex justify-between items-center">
