@@ -4,9 +4,9 @@ import { ProcessForm } from '@/components/ProcessForm';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { IPropose } from '@/entities/ipropose';
 import { ContainerFormLayout } from '@/layouts/ContainerFormLayout';
 import { processSchema } from '@/schemas/process-schema';
-import { ProposeMapper } from '@/services/mappers/propose-mapper';
 import { ProposeService } from '@/services/propose-service';
 import { UserNotificationService } from '@/services/user-notification-service';
 import { FormEvent, useEffect, useState } from 'react';
@@ -24,18 +24,17 @@ export function EditProcess() {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [initialValues, setInitialValues] = useState<Partial<ProcessFormData>>({});
+  const [process, setProcess] = useState<IPropose | undefined>(undefined);
   const [user] = useState(JSON.parse(localStorage.getItem('user') as string));
 
   useEffect(() => {
     async function loadProcess() {
       if (id) {
         try {
-          const process = await ProposeService.getById(id);
+          const data = await ProposeService.getById(id);
+          setStatus(data.proposeStatus);
 
-          setStatus(process.proposeStatus);
-
-          setInitialValues(ProposeMapper.toDomain(process));
+          setProcess(data);
         } catch {
           toast.error('Erro ao carregar processo');
         } finally {
@@ -62,7 +61,6 @@ export function EditProcess() {
   async function handleUpdateProcess(data: ProcessFormData) {
     try {
       if (id) {
-        console.log(data);
         await ProposeService.update(id, data);
         toast.success('Processo atualizado com sucesso');
         return;
@@ -81,27 +79,31 @@ export function EditProcess() {
   async function handleSendMessageSubmit(e: FormEvent) {
     e.preventDefault();
     try {
-      if (initialValues.userSupplier) {
-        await UserNotificationService.create(initialValues.userSupplier.userId, message);
+      if (process?.user) {
+        await UserNotificationService.create(process.user.idUser, message);
 
-        const notifications = initialValues.userSupplier?.notifications || [];
-
-        setInitialValues({
-          ...initialValues,
-          userSupplier: {
-            ...initialValues.userSupplier,
-            notifications: [
-              ...notifications,
-              {
-                idNotification: Date.now(),
-                notificationDescription: message,
-                notificationDate: new Date().toISOString(),
-                notificationStatus: 'A',
-                userId: Number(initialValues.userSupplier.userId),
+        setProcess(prevState => {
+          if (prevState) {
+            return ({
+              ...prevState,
+              user: {
+                ...prevState?.user,
+                notifications: [
+                  ...prevState.user.notifications,
+                  {
+                    idNotification: Date.now(),
+                    notificationDescription: message,
+                    notificationDate: new Date().toISOString(),
+                    notificationStatus: 'A',
+                    userId: Number(prevState.user.idUser),
+                  }
+                ]
               }
-            ]
+            })
           }
-        });
+
+          return undefined;
+        })
 
         setMessage('');
 
@@ -123,10 +125,14 @@ export function EditProcess() {
 
   async function handleExportPropose() {
     try {
-
       setIsLoading(true);
-      if (initialValues?.idProposes) {
-        const data = await ProposeService.getExportPropose(initialValues.idProposes);
+      if (status !== 'F') {
+        toast.error('Só é possível gerar o relatório, após de finalizar a vistória!')
+        return;
+      }
+
+      if (id) {
+        const data = await ProposeService.getExportPropose(id);
 
         const blob = new Blob([data], {
           type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -135,7 +141,7 @@ export function EditProcess() {
 
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `processo-${initialValues.idProposes}.xlsm`)
+        link.setAttribute('download', `processo-${id}.xlsm`)
         document.body.appendChild(link)
         link.click()
 
@@ -154,7 +160,8 @@ export function EditProcess() {
     <ContainerFormLayout pathTo="/">
       {isLoading && <Loader />}
       <ProcessForm
-        initialValues={initialValues}
+        key={process?.idProposes}
+        process={process}
         onSubmit={handleUpdateProcess}
       />
 
@@ -183,13 +190,13 @@ export function EditProcess() {
       <h1 className="text-primary text-[26px] font-bold mb-[38px] ">Enviar mensagem</h1>
 
       <div className="flex flex-col gap-[38px] pb-60">
-        {initialValues?.userSupplier?.notifications?.map((notification) => (
+        {process?.user?.notifications?.map((notification) => (
           <div key={notification.idNotification} className="w-full flex gap-11">
             <div className="py-3 px-6 bg-white border-r-[6px] border-r-primary w-full border border-[#DDDDDD] rounded-[10px]">
               <p className="break-words">{notification.notificationDescription}</p>
             </div>
             <div className="self-end">
-              <img className="max-w-[40px] max-h-[40px] rounded" src={initialValues.userSupplier?.additionalInfo?.userAdditionalUrlPicture || photoUser} alt="" />
+              <img className="max-w-[40px] max-h-[40px] rounded" src={process?.user?.additionalInfo?.userAdditionalUrlPicture || photoUser} alt="" />
             </div>
           </div>
         ))}

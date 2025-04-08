@@ -8,32 +8,49 @@ import { maskPhoneNumber } from "@/utils/maskPhoneNumber";
 import { File, FileUp, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
+import { StepperNextButton, StepperPreviousButton } from ".";
 import { InputFile } from "../InputFile";
 import { Loader } from "../loader";
 import { TitleForm } from "../TitleForm";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
+import { useStepper } from "./useStepper";
 
 
 
 export function StepTwo() {
+  const { id } = useParams();
+
+  const { nextStep } = useStepper();
   const {
     control,
     getValues,
-    setValue
+    setValue,
+    trigger
   } = useFormContext<z.infer<typeof processSchema>>();
   const [isLoading, setIsLoading] = useState(false);
   const [fileNames, setFileNames] = useState<string[]>([]);
-  const filesSaved = getValues("files");
-  const attachments = getValues("attachments");
+  const filesSaved = getValues("scheduleSchema.files");
+  const attachments = getValues("scheduleSchema.attachments");
 
+  async function handleStepperNext() {
+    const isValid = await trigger('scheduleSchema');
+
+    console.log(isValid);
+
+    if (isValid) {
+      nextStep();
+    }
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('handleFileChange')
     const newFiles = Array.from(e.target.files || []);
-    const currentFiles = getValues("files") || [];
+    const currentFiles = getValues("scheduleSchema.files") || [];
 
     // Combina os arquivos existentes com os novos
     const updatedFiles = [...currentFiles, ...newFiles];
@@ -45,19 +62,19 @@ export function StepTwo() {
     setFileNames(updatedFileNames);
 
     // Atualiza os arquivos no React Hook Form
-    setValue("files", updatedFiles, { shouldValidate: true });
+    setValue("scheduleSchema.files", updatedFiles, { shouldValidate: true });
 
     // Limpa o input de arquivos
     e.target.value = "";
   };
 
   const handleRemoveFile = (index: number) => {
-    const currentFiles = getValues("files") || [];
+    const currentFiles = getValues("scheduleSchema.files") || [];
     const updatedFiles = currentFiles.filter((_, i) => i !== index); // Remove o arquivo do estado
     const updatedFileNames = updatedFiles.map((file) => file.name);
 
     setFileNames(updatedFileNames); // Atualiza os nomes exibidos no estado
-    setValue("files", updatedFiles, {
+    setValue("scheduleSchema.files", updatedFiles, {
       shouldValidate: true,
     }); // Atualiza os arquivos no formulário
   };
@@ -68,9 +85,9 @@ export function StepTwo() {
 
       await AttachmentService.delete(id);
 
-      setValue("attachments", attachments.filter((attachment) => attachment.id_attachments !== id), {
+      setValue("scheduleSchema.attachments", attachments.filter((attachment) => attachment.id_attachments !== id), {
         shouldValidate: true,
-      }); // Atualiza os arquivos no formulário
+      });
 
       toast.success('Anexo removido com sucesso')
     } catch {
@@ -87,7 +104,6 @@ export function StepTwo() {
 
       const formData = new FormData();
       formData.append('files', file);
-      const id = getValues("idProposes");
 
       formData.append('propose', `${id}`);
 
@@ -98,7 +114,7 @@ export function StepTwo() {
       });
 
       if (!attachments) {
-        setValue("attachments", [
+        setValue("scheduleSchema.attachments", [
           {
             id_attachments: response.data.id_attachments,
             attachments_link: response.data.attachments_link,
@@ -113,7 +129,7 @@ export function StepTwo() {
         return;
       }
 
-      setValue("attachments", [
+      setValue("scheduleSchema.attachments", [
         ...attachments,
         {
           id_attachments: response.data.id_attachments,
@@ -144,13 +160,14 @@ export function StepTwo() {
     }
   }, [filesSaved]);
 
+  console.log(attachments);
   return (
     <>
       {isLoading && <Loader />}
       <TitleForm title="Vistoria" />
       <FormField
         control={control}
-        name="date"
+        name="scheduleSchema.date"
         render={({ field }) => (
           <FormItem className="lg:max-w-52 w-full">
             <FormLabel>Data</FormLabel>
@@ -170,7 +187,7 @@ export function StepTwo() {
 
       <FormField
         control={control}
-        name="hour"
+        name="scheduleSchema.hour"
         render={({ field }) => (
           <FormItem className="lg:max-w-52 w-full">
             <FormLabel>Horário</FormLabel>
@@ -190,7 +207,7 @@ export function StepTwo() {
 
       <FormField
         control={control}
-        name="phoneNumber"
+        name="scheduleSchema.phoneNumber"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Telefone</FormLabel>
@@ -210,7 +227,7 @@ export function StepTwo() {
 
       <FormField
         control={control}
-        name="description"
+        name="scheduleSchema.description"
         render={({ field }) => (
           <FormItem className="w-full">
             <FormLabel>Descrição</FormLabel>
@@ -236,7 +253,7 @@ export function StepTwo() {
       ) : (
         <FormField
           control={control}
-          name="files"
+          name="scheduleSchema.files"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel>Anexos</FormLabel>
@@ -289,6 +306,12 @@ export function StepTwo() {
             ))}
           </ul>
         )}
+      </div>
+
+
+      <div className="flex flex-col w-full mt-10 gap-[22px]">
+        <StepperNextButton onClick={handleStepperNext} hidden />
+        <StepperPreviousButton hidden />
       </div>
     </>
   )

@@ -10,8 +10,10 @@ import { useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
+import { StepperNextButton } from "."
 import { TitleForm } from "../TitleForm"
 import { Loader } from "../loader"
+import { useStepper } from "./useStepper"
 
 
 
@@ -24,29 +26,40 @@ interface IGetCepResponse {
 }
 
 export function StepOne() {
+  const { nextStep } = useStepper();
   const [isLoading, setIsLoading] = useState(false);
   const {
     setValue,
     control,
     watch,
+    trigger,
+    formState
   } = useFormContext<z.infer<typeof processSchema>>();
-  const cep = watch('cep')
-  const uf = watch('uf')
+  const cep = watch('basicInfoSchema.addressSchema.cep')
+  console.log(cep, cep?.length === 10, formState.isDirty)
   useEffect(() => {
-    if (cep && cep.length === 10 && !uf) {
+    if (cep && cep?.length === 10 && formState.isDirty) {
       setIsLoading(true);
       axios.get<IGetCepResponse>(`https://viacep.com.br/ws/${cep.replace(/\D/g, '')}/json/`)
         .then(({ data }) => {
-          setValue('street', data.logradouro);
-          setValue('neighborhood', data.bairro);
-          setValue('complement', data.complemento);
-          setValue('city', data.localidade);
-          setValue('uf', data.uf);
+          setValue('basicInfoSchema.addressSchema.street', data.logradouro);
+          setValue('basicInfoSchema.addressSchema.neighborhood', data.bairro);
+          setValue('basicInfoSchema.addressSchema.complement', data.complemento);
+          setValue('basicInfoSchema.addressSchema.city', data.localidade);
+          setValue('basicInfoSchema.addressSchema.uf', data.uf);
         }).catch(() => {
           toast.error('Não foi possível buscar o endereço!')
         }).finally(() => setIsLoading(false));
     }
-  }, [cep, uf])
+  }, [cep, setValue]);
+
+  async function handleStepperNext() {
+    const isValid = await trigger('basicInfoSchema');
+
+    if (isValid) {
+      nextStep();
+    }
+  }
 
 
   return (
@@ -56,7 +69,7 @@ export function StepOne() {
 
       <FormField
         control={control}
-        name="title"
+        name="basicInfoSchema.title"
         render={({ field }) => (
           <FormItem className="w-full">
             <FormLabel>Título</FormLabel>
@@ -70,7 +83,7 @@ export function StepOne() {
 
       <FormField
         control={control}
-        name="processNumber"
+        name="basicInfoSchema.processNumber"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Número do processo</FormLabel>
@@ -84,7 +97,7 @@ export function StepOne() {
 
       <FormField
         control={control}
-        name="resType"
+        name="basicInfoSchema.resType"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Tipo de imóvel</FormLabel>
@@ -109,7 +122,7 @@ export function StepOne() {
 
       <FormField
         control={control}
-        name="cep"
+        name="basicInfoSchema.addressSchema.cep"
         render={({ field }) => (
           <FormItem className="lg:max-w-56">
             <FormLabel>Cep</FormLabel>
@@ -124,7 +137,7 @@ export function StepOne() {
 
       <FormField
         control={control}
-        name="city"
+        name="basicInfoSchema.addressSchema.city"
         render={({ field }) => (
           <FormItem className="lg:max-w-[342px] w-full" >
             <FormLabel>Cidade</FormLabel>
@@ -139,7 +152,7 @@ export function StepOne() {
 
       <FormField
         control={control}
-        name="uf"
+        name="basicInfoSchema.addressSchema.uf"
         render={({ field }) => (
           <FormItem className="lg:max-w-[342px] w-full">
             <FormLabel>Estado</FormLabel>
@@ -162,7 +175,7 @@ export function StepOne() {
 
       <FormField
         control={control}
-        name="street"
+        name="basicInfoSchema.addressSchema.street"
         render={({ field }) => (
           <FormItem className="lg:max-w-[703px] w-full">
             <FormLabel>Rua</FormLabel>
@@ -176,7 +189,7 @@ export function StepOne() {
 
       <FormField
         control={control}
-        name="number"
+        name="basicInfoSchema.addressSchema.number"
         render={({ field }) => (
           <FormItem className="lg:max-w-[209px] w-full">
             <FormLabel>Número</FormLabel>
@@ -190,7 +203,7 @@ export function StepOne() {
 
       <FormField
         control={control}
-        name="neighborhood"
+        name="basicInfoSchema.addressSchema.neighborhood"
         render={({ field }) => (
           <FormItem className="lg:flex-1">
             <FormLabel>Bairro</FormLabel>
@@ -204,7 +217,7 @@ export function StepOne() {
 
       <FormField
         control={control}
-        name="complement"
+        name="basicInfoSchema.addressSchema.complement"
         render={({ field }) => (
           <FormItem className="lg:flex-1">
             <FormLabel>Complemento</FormLabel>
@@ -215,6 +228,11 @@ export function StepOne() {
           </FormItem>
         )}
       />
+
+
+      <div className="flex flex-col w-full mt-10 gap-[22px]">
+        <StepperNextButton onClick={handleStepperNext} hidden />
+      </div>
     </>
   )
 }

@@ -14,6 +14,9 @@ export function NewProcess() {
   const location = useLocation();
 
   async function handleSubmit(data: ProcessFormData) {
+    console.log(data);
+
+
     const idPropose = await ProposeService.create(data);
 
     navigate(`/edit-process/${idPropose}`, {

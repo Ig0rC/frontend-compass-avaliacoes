@@ -52,10 +52,10 @@ export class ProposeService {
       ...dataMapper
     });
 
-    if (response.data && body.files) {
-      for (let i = 0; i < body.files.length; i++) {
+    if (response.data && body.scheduleSchema.files) {
+      for (let i = 0; i < body.scheduleSchema.files.length; i++) {
         const formData = new FormData();
-        formData.append("files", body.files[i]); // Adiciona cada arquivo ao FormData
+        formData.append("files", body.scheduleSchema.files[i]); // Adiciona cada arquivo ao FormData
         formData.append('propose', response.data);
         await api.post('/new-attachment', formData, {
           headers: {
@@ -71,10 +71,10 @@ export class ProposeService {
   static async update(id: string | number, body: z.infer<typeof processSchema>) {
     const dataMapper = ProposeMapper.toPersistence(body);
 
-    if (body.files) {
-      for (let i = 0; i < body.files.length; i++) {
+    if (body.scheduleSchema.files) {
+      for (let i = 0; i < body.scheduleSchema.files.length; i++) {
         const formData = new FormData();
-        formData.append("files", body.files[i]); // Adiciona cada arquivo ao FormData
+        formData.append("files", body.scheduleSchema.files[i]); // Adiciona cada arquivo ao FormData
         formData.append('propose', `${id}`);
         await api.post('/new-attachment', formData, {
           headers: {

@@ -1,5 +1,10 @@
 
-export function maskCurrency(currency: string | number, onlyFormat: boolean = false) {
+export function maskCurrency(currency: string | number | undefined, onlyFormat: boolean = false) {
+  if (typeof currency === 'undefined') {
+    return 'R$'
+  }
+
+
   if (typeof currency === 'number') {
     currency = currency.toString();
   }

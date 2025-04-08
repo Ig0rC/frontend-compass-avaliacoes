@@ -4,15 +4,35 @@ import { colors } from "@/utils/colors";
 import { maskPhoneNumber } from "@/utils/maskPhoneNumber";
 import { useFormContext } from "react-hook-form";
 import { z } from "zod";
+import { StepperNextButton, StepperPreviousButton } from ".";
 import { TitleForm } from "../TitleForm";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useStepper } from "./useStepper";
 
 
 export function StepThree() {
+  const { nextStep } = useStepper();
+
+
   const {
     control,
+    trigger
   } = useFormContext<z.infer<typeof processSchema>>();
+
+
+  async function handleStepperNext() {
+    const isValid = await trigger('clientSchema');
+
+    console.log(isValid);
+
+    if (isValid) {
+      nextStep();
+    }
+  }
+
+
+
 
   return (
     <>
@@ -20,7 +40,7 @@ export function StepThree() {
 
       <FormField
         control={control}
-        name="clientName"
+        name="clientSchema.clientName"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Nome do cliente</FormLabel>
@@ -37,7 +57,7 @@ export function StepThree() {
 
       <FormField
         control={control}
-        name="phoneNumberClient"
+        name="clientSchema.phoneNumberClient"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Telefone</FormLabel>
@@ -57,7 +77,7 @@ export function StepThree() {
 
       <FormField
         control={control}
-        name="accompanyingName"
+        name="clientSchema.accompanyingName"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Nome do acompanhante</FormLabel>
@@ -76,7 +96,7 @@ export function StepThree() {
 
       <FormField
         control={control}
-        name="priority"
+        name="clientSchema.priority"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Prioridade</FormLabel>
@@ -104,7 +124,7 @@ export function StepThree() {
 
       <FormField
         control={control}
-        name="color"
+        name="clientSchema.color"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Cor</FormLabel>
@@ -138,6 +158,11 @@ export function StepThree() {
           </FormItem>
         )}
       />
+
+      <div className="flex flex-col w-full mt-10 gap-[22px]">
+        <StepperNextButton onClick={handleStepperNext} hidden />
+        <StepperPreviousButton hidden />
+      </div>
     </>
   )
 }

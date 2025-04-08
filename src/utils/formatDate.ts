@@ -1,4 +1,4 @@
-export function formatDate(date: string) {
+export function formatDate(date: string | undefined) {
   if (!date) return {
     date: '',
     hour: '',

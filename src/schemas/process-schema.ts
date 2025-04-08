@@ -1,13 +1,10 @@
 import z from 'zod';
 
-
-// Mensagens de erro comuns
 const errorMessages = {
   required: (field: string) => `Informe ${field}.`,
   maxLength: (field: string, max: number) => `${field} deve ter no máximo ${max} caracteres.`,
 };
 
-// Schema de endereço
 const addressSchema = z.object({
   cep: z.string()
     .min(1, errorMessages.required('um CEP'))
@@ -20,19 +17,14 @@ const addressSchema = z.object({
   complement: z.string(),
 });
 
-// Schema de informações básicas
-const basicInfoSchema = z.object({
+export const basicInfoSchema = z.object({
   idProposes: z.number().optional(),
   title: z.string().min(1, errorMessages.required('um título')),
   processNumber: z.string().min(1, errorMessages.required('um número do processo')),
   resType: z.string().min(1, errorMessages.required('um tipo de imóvel')),
-  description: z.string()
-    .min(1, errorMessages.required('uma descrição'))
-    .max(2000, errorMessages.maxLength('Descrição', 2000)),
-  proposeStatus: z.string().optional()
+  addressSchema: addressSchema,
 });
 
-// Schema de agendamento
 const scheduleSchema = z.object({
   date: z.string().min(1, errorMessages.required('uma data')),
   hour: z.string().min(1, errorMessages.required('um horário')),
@@ -41,6 +33,15 @@ const scheduleSchema = z.object({
     .max(15, errorMessages.maxLength('Telefone', 15)),
   files: z.array(z.instanceof(File)).optional(),
 
+  description: z.string()
+    .min(1, errorMessages.required('uma descrição'))
+    .max(2000, errorMessages.maxLength('Descrição', 2000)),
+  attachments: z.array(z.object({
+    id_attachments: z.number(),
+    attachments_link: z.string(),
+    attachments_status: z.string(),
+    proposes_id_proposes: z.number(),
+  })).optional()
 });
 
 // Schema de cliente
@@ -54,18 +55,6 @@ const clientSchema = z.object({
   accompanyingName: z.string().min(1, errorMessages.required('um nome de acompanhante')),
 });
 
-// Schema de valores
-const valuesSchema = z.object({
-  kmValue: z.string().min(1, errorMessages.required('um valor de Km')),
-  displacementValue: z.string().min(1, errorMessages.required('um valor de deslocamento')),
-  avaliationValue: z.string().min(1, errorMessages.required('um valor de avaliação')),
-  propertyValue: z.string().min(1, errorMessages.required('um valor de propriedade')),
-  preReportValue: z.string().min(1, errorMessages.required('um valor estimado')),
-  galleryValue: z.string().min(1, errorMessages.required('um valor de galeria')),
-  customerValue: z.string().min(1, errorMessages.required('um valor de pré-laudo')),
-});
-
-// Schema do fornecedor
 const userSupplierSchema = z.object({
   userId: z.string().min(1, errorMessages.required('um id')),
   username: z.string(),
@@ -114,22 +103,24 @@ const userSupplierSchema = z.object({
   }
 });
 
+// Schema de valores
+const valuesSchema = z.object({
+  kmValue: z.string().min(1, errorMessages.required('um valor de Km')),
+  displacementValue: z.string().min(1, errorMessages.required('um valor de deslocamento')),
+  avaliationValue: z.string().min(1, errorMessages.required('um valor de avaliação')),
+  propertyValue: z.string().min(1, errorMessages.required('um valor de propriedade')),
+  preReportValue: z.string().min(1, errorMessages.required('um valor estimado')),
+  galleryValue: z.string().min(1, errorMessages.required('um valor de galeria')),
+  customerValue: z.string().min(1, errorMessages.required('um valor de pré-laudo')),
+  userSupplierSchema: userSupplierSchema,
+});
+
+
 // Schema principal combinando todos os subschemas
 export const processSchema = z.object({
-  ...basicInfoSchema.shape,
-  ...addressSchema.shape,
-  ...scheduleSchema.shape,
-  ...clientSchema.shape,
-  ...valuesSchema.shape,
-  userSupplier: userSupplierSchema,
-  proposeSolicitationDate: z.string().optional(),
-  displacementType: z.string().optional(),
-  idProposesAdditionalInfo: z.number().optional(),
+  basicInfoSchema: basicInfoSchema,
+  scheduleSchema: scheduleSchema,
+  clientSchema: clientSchema,
+  valuesSchema: valuesSchema,
   solicitationDate: z.string().optional(),
-  attachments: z.array(z.object({
-    id_attachments: z.number(),
-    attachments_link: z.string(),
-    attachments_status: z.string(),
-    proposes_id_proposes: z.number(),
-  })).optional(),
 });

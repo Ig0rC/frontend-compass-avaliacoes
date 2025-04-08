@@ -1,4 +1,5 @@
 export function maskHour(hour: string) {
+  if (typeof hour === 'undefined') return '';
   if (hour.length > 5) return hour;
   if (!hour) return hour;
 

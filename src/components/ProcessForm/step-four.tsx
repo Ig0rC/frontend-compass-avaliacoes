@@ -8,20 +8,33 @@ import { useCallback, useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { StepperNextButton, StepperPreviousButton } from ".";
 import { Loader } from "../loader";
 import { TitleForm } from "../TitleForm";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useStepper } from "./useStepper";
 
 
 export function StepFour() {
+  const { nextStep } = useStepper();
+
   const [isLoading, setIsLoading] = useState(true);
   const [usersSupplier, setUsersSupplier] = useState<IUser[]>([]);
   const {
     control,
     watch,
+    trigger,
     setValue,
   } = useFormContext<z.infer<typeof processSchema>>();
+
+  async function handleStepperNext() {
+    const isValid = await trigger('valuesSchema');
+
+    if (isValid) {
+      nextStep();
+    }
+  }
 
   const loadUserSupplier = useCallback(async () => {
     try {
@@ -42,14 +55,14 @@ export function StepFour() {
 
 
   function handleUserSupplierIdChange(value: string) {
-    setValue('userSupplier.userId', value);
-
     if (value === 'others') {
-      setValue('userSupplier.userEmail', '')
-      setValue('userSupplier.userDoc', '')
-      setValue('userSupplier.username', '');
-      setValue('userSupplier.userPhoneNumber', '');
-      setValue('userSupplier.userCreaOrCau', '');
+      setValue('valuesSchema.userSupplierSchema.userEmail', '')
+      setValue('valuesSchema.userSupplierSchema.userDoc', '')
+      setValue('valuesSchema.userSupplierSchema.username', '');
+      setValue('valuesSchema.userSupplierSchema.userPhoneNumber', '');
+      setValue('valuesSchema.userSupplierSchema.userCreaOrCau', '');
+      setValue('valuesSchema.userSupplierSchema.userId', 'others')
+
 
       return;
     }
@@ -57,11 +70,12 @@ export function StepFour() {
     const userSupllier = usersSupplier.find((userSupllier) => userSupllier.idUser === Number(value));
 
     if (userSupllier) {
-      setValue('userSupplier.userEmail', userSupllier.userEmail)
-      setValue('userSupplier.userDoc', userSupllier.userDoc);
-      setValue('userSupplier.username', userSupllier.username);
-      setValue('userSupplier.userPhoneNumber', '');
-      setValue('userSupplier.userCreaOrCau', userSupllier.additionalInfo?.userAdditionalCreaOrCau || '');
+      setValue('valuesSchema.userSupplierSchema.userId', userSupllier.idUser.toString())
+      setValue('valuesSchema.userSupplierSchema.userEmail', userSupllier.userEmail)
+      setValue('valuesSchema.userSupplierSchema.userDoc', userSupllier.userDoc);
+      setValue('valuesSchema.userSupplierSchema.username', userSupllier.username);
+      setValue('valuesSchema.userSupplierSchema.userPhoneNumber', '');
+      setValue('valuesSchema.userSupplierSchema.userCreaOrCau', userSupllier.additionalInfo?.userAdditionalCreaOrCau || '');
     }
   }
 
@@ -73,38 +87,42 @@ export function StepFour() {
 
       <FormField
         control={control}
-        name="userSupplier.userId"
-        render={({ field }) => (
-          <FormItem className="w-full">
-            <FormLabel>Selecionar Prestador</FormLabel>
-            <Select onValueChange={handleUserSupplierIdChange} value={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-              </FormControl>
+        name="valuesSchema.userSupplierSchema.userId"
+        render={({ field }) => {
+          return (
+            (
+              <FormItem className="w-full">
+                <FormLabel>Selecionar Prestador</FormLabel>
+                <Select onValueChange={handleUserSupplierIdChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                  </FormControl>
 
-              <SelectContent>
-                <SelectItem value="others">
-                  Outro
-                </SelectItem>
-                {usersSupplier.map((userSupplier) => (
-                  <SelectItem key={userSupplier.idUser} value={userSupplier.idUser.toString()}>
-                    {userSupplier.username}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+                  <SelectContent>
+                    <SelectItem value="others">
+                      Outro
+                    </SelectItem>
+                    {usersSupplier.map((userSupplier) => (
+                      <SelectItem key={userSupplier.idUser} value={userSupplier.idUser.toString()}>
+                        {userSupplier.username}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )
+          )
+        }}
       />
 
-      {watch('userSupplier.userId') === 'others' && (
+      {watch('valuesSchema.userSupplierSchema.userId') === 'others' && (
         <>
           <FormField
             control={control}
-            name="userSupplier.username"
+            name="valuesSchema.userSupplierSchema.username"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Nome completo</FormLabel>
@@ -121,7 +139,7 @@ export function StepFour() {
 
           <FormField
             control={control}
-            name="userSupplier.userEmail"
+            name="valuesSchema.userSupplierSchema.userEmail"
             render={({ field }) => (
               <FormItem className="lg:max-w-[457px] w-full">
                 <FormLabel>E-mail</FormLabel>
@@ -138,7 +156,7 @@ export function StepFour() {
 
           <FormField
             control={control}
-            name="userSupplier.userPhoneNumber"
+            name="valuesSchema.userSupplierSchema.userPhoneNumber"
             render={({ field }) => (
               <FormItem className="lg:max-w-[457px] w-full">
                 <FormLabel>Telefone</FormLabel>
@@ -158,7 +176,7 @@ export function StepFour() {
 
           <FormField
             control={control}
-            name="userSupplier.userCreaOrCau"
+            name="valuesSchema.userSupplierSchema.userCreaOrCau"
             render={({ field }) => (
               <FormItem className="lg:max-w-[457px] w-full">
                 <FormLabel>Crea ou Cau</FormLabel>
@@ -177,7 +195,7 @@ export function StepFour() {
 
           <FormField
             control={control}
-            name="userSupplier.userDoc"
+            name="valuesSchema.userSupplierSchema.userDoc"
             render={({ field }) => (
               <FormItem className="lg:max-w-[457px] w-full">
                 <FormLabel>RG ou CPF</FormLabel>
@@ -199,7 +217,7 @@ export function StepFour() {
 
       <FormField
         control={control}
-        name="kmValue"
+        name="valuesSchema.kmValue"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Valor de KM</FormLabel>
@@ -219,7 +237,7 @@ export function StepFour() {
 
       <FormField
         control={control}
-        name="displacementValue"
+        name="valuesSchema.displacementValue"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Valor de deslocamento</FormLabel>
@@ -239,7 +257,7 @@ export function StepFour() {
 
       <FormField
         control={control}
-        name="avaliationValue"
+        name="valuesSchema.avaliationValue"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Valor de Avaliação</FormLabel>
@@ -259,7 +277,7 @@ export function StepFour() {
 
       <FormField
         control={control}
-        name="galleryValue"
+        name="valuesSchema.galleryValue"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Valor da Galleria</FormLabel>
@@ -279,7 +297,7 @@ export function StepFour() {
 
       <FormField
         control={control}
-        name="propertyValue"
+        name="valuesSchema.propertyValue"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Valor da estimado do imóvel</FormLabel>
@@ -299,7 +317,7 @@ export function StepFour() {
 
       <FormField
         control={control}
-        name="customerValue"
+        name="valuesSchema.customerValue"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Valor que o cliente precisa</FormLabel>
@@ -319,7 +337,7 @@ export function StepFour() {
 
       <FormField
         control={control}
-        name="preReportValue"
+        name="valuesSchema.preReportValue"
         render={({ field }) => (
           <FormItem className="lg:max-w-[457px] w-full">
             <FormLabel>Valor de pré-loudo</FormLabel>
@@ -336,6 +354,12 @@ export function StepFour() {
           </FormItem>
         )}
       />
+
+
+      <div className="flex flex-col w-full mt-10 gap-[22px]">
+        <StepperNextButton onClick={handleStepperNext} />
+        <StepperPreviousButton />
+      </div>
     </>
   )
 }

@@ -1,11 +1,10 @@
 import { api } from "@/lib/api";
 
 export class UserNotificationService {
-  static async create(userId: string, message: string) {
-    console.log('ok')
+  static async create(userId: number, message: string) {
     await api.post(`/user-notification`, {
       notificationDescription: message,
-      userId: Number(userId),
+      userId: userId,
     });
 
   }
