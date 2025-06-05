@@ -6,11 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { IPropose } from '@/entities/ipropose';
 import { ContainerFormLayout } from '@/layouts/ContainerFormLayout';
-import { processSchema } from '@/schemas/process-schema';
+import { processSchema } from '@/schemas/create-process-schema';
 import { ProposeService } from '@/services/propose-service';
 import { UserNotificationService } from '@/services/user-notification-service';
 import { FormEvent, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import send from '../../assets/images/send.svg';
@@ -21,6 +21,10 @@ type ProcessFormData = z.infer<typeof processSchema>;
 
 export function EditProcess() {
   const { id } = useParams();
+  const location = useLocation();
+
+  const searchParams = location.state?.searchParams || 'page=1';
+
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -109,10 +113,8 @@ export function EditProcess() {
 
         toast.success('Mensagem enviada com sucesso');
       }
-    } catch (error) {
-      console.log(error)
+    } catch {
       toast.error('Erro ao enviar a mensagem');
-
     }
   }
 
@@ -156,8 +158,11 @@ export function EditProcess() {
     }
   }
 
+
+
+
   return (
-    <ContainerFormLayout pathTo="/">
+    <ContainerFormLayout pathTo={`/?${searchParams}`}>
       {isLoading && <Loader />}
       <ProcessForm
         key={process?.idProposes}

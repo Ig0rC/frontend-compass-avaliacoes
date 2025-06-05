@@ -1,7 +1,7 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { processSchema } from "@/schemas/process-schema"
+import { processSchema } from "@/schemas/create-process-schema"
 import { maskCep } from "@/utils/maskCEP"
 import { propertyTypes } from "@/utils/propertyTypes"
 import { states } from "@/utils/states"

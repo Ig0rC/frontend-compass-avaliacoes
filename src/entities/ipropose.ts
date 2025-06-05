@@ -1,4 +1,7 @@
-import { IUser } from "./i-user-supplier"
+import { IUser } from "./i-user-supplier";
+
+
+
 
 export interface IPropose {
   idProposes: number
@@ -67,4 +70,6 @@ export interface IPropose {
     proposes_id_proposes: number
   }[]
 }
+
+export type ProposeList = Pick<IPropose, 'idProposes' | 'proposeResType' | 'proposeCep' | 'proposeAddress' | 'proposeDate' | 'proposeStatus' | 'proposeAdditionalInfo' | 'inspections' | 'proposeDescription'>;
 

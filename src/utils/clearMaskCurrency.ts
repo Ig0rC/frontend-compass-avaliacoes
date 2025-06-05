@@ -1,4 +1,8 @@
-export function clearMaskCurrency(currency: string) {
+export function clearMaskCurrency(currency: string | number) {
+  if (typeof currency === 'number') {
+    currency = currency.toString();
+  }
+
 
   currency = currency.replace(/\./g, '')
 

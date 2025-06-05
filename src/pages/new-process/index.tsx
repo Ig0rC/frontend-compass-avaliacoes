@@ -1,6 +1,6 @@
 import { ProcessForm } from '@/components/ProcessForm';
 import { ContainerFormLayout } from '@/layouts/ContainerFormLayout';
-import { processSchema } from '@/schemas/process-schema';
+import { processSchema } from '@/schemas/create-process-schema';
 import { ProposeService } from '@/services/propose-service';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -12,6 +12,7 @@ type ProcessFormData = z.infer<typeof processSchema>;
 export function NewProcess() {
   const navigate = useNavigate();
   const location = useLocation();
+  const searchParams = location.state?.searchParams;
 
   async function handleSubmit(data: ProcessFormData) {
     console.log(data);
@@ -28,7 +29,7 @@ export function NewProcess() {
   }
 
   return (
-    <ContainerFormLayout pathTo="/">
+    <ContainerFormLayout pathTo={`/?${searchParams}`}>
       <ProcessForm
         onSubmit={handleSubmit}
       />

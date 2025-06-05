@@ -1,4 +1,4 @@
-import { IPropose } from "@/entities/ipropose";
+import { ProposeList } from "@/entities/ipropose";
 
 export interface Column {
   id: string;
@@ -8,7 +8,7 @@ export interface Column {
 
 export interface KanbanData {
   proposes: {
-    [key: number]: IPropose;
+    [key: number]: ProposeList;
   };
   columns: {
     [key: string]: Column;

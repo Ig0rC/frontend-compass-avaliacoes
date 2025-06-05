@@ -1,0 +1,57 @@
+import z from "zod";
+
+export const updateProposeSchema = z.object({
+  idProposes: z.number(),
+  proposeResType: z.string(),
+  proposeDate: z.string(),
+  proposeDescription: z.string(),
+  proposeCep: z.string(),
+  proposeStatus: z.string(),
+  // inspections: z.object({
+  //   id_inspection: z.number(),
+  //   inspectionDate: z.string(), // você pode usar z.coerce.date() se quiser transformar em objeto Date
+  //   clientPresent: z.string(),
+  //   propertyDescription: z.string(),
+  //   inspectionStatus: z.string(),
+  //   inspectionUserLocation: z.string(),
+  //   proposesIdProposes: z.number(),
+  //   userId: z.number(),
+  //   enterpriseIdEnterprise: z.number(),
+  //   environmentsNumber: z.number(),
+  //   genericInfo: z.object({
+  //     generic_info: z.object({
+  //       andares: z.string(),
+  //       subsolo: z.string(),
+  //       unidades_por_andar: z.string(),
+  //       blocos: z.string(),
+  //       elevadores: z.string(),
+  //     }),
+  //   }),
+  // }),
+  proposeAdditionalInfo: z.object({
+    proposeAddStreet: z.string(),
+    idProposesAdditionalInfo: z.number(),
+    proposeAddCity: z.string(),
+    proposeAddUf: z.string(),
+    proposeAddNumber: z.string(),
+    proposeAddNeighborhood: z.string(),
+    proposesAddPhoneNumber: z.string(),
+    proposeAddClientName: z.string(),
+    proposeAddPhoneNumberClient: z.string(),
+    proposeAddCompanionName: z.string(),
+    proposeAddPriority: z.boolean(),
+    proposeAddColor: z.string(),
+    proposeAddKmValue: z.union([z.string(), z.number()]),
+    proposeAddAvaliationValue: z.union([z.string(), z.number()]),
+    proposeAddDisplacementValue: z.union([z.string(), z.number()]),
+    proposeAddGalleryValue: z.union([z.string(), z.number()]),
+    proposeAddCustomerValue: z.union([z.string(), z.number()]),
+    proposeAddEstimatedPropertyValue: z.union([z.string(), z.number()]),
+    proposeAddPreReportValue: z.union([z.string(), z.number()]),
+    proposeAddComplement: z.string(),
+    proposesIdProposes: z.number(),
+    proposesAddProposeNumber: z.string(),
+    proposesAddSolicitationDate: z.string(),
+    proposeAddDisplacementType: z.string(),
+  })
+})

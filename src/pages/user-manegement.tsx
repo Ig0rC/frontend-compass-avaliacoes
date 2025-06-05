@@ -2,86 +2,66 @@ import { FooterTable } from "@/components/footer-table";
 import { InputSearch } from "@/components/input-search";
 import { Loader } from "@/components/loader";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { IUser } from "@/entities/i-user-supplier";
-import { useQuery } from "@/hooks/use-Query";
 import { UserService } from "@/services/user-service";
-import { ListStartIcon, Search } from "lucide-react";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { ListStartIcon, Plus, Search } from "lucide-react";
+import { ChangeEvent, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { z } from "zod";
 
 
 
 
 
 export function UserManegement() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [users, setUsers] = useState<IUser[]>([]);
-  const { pageNext, pagePrevious, pagination, setPagination, pageMove, filters, onSearchTermChange } = useQuery('filtersUser');
-  const [searchTerm, setSearchTerm] = useState('');
-  const loadData = useCallback(async () => {
-    try {
-      if (!filters) {
-        return;
-      }
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') ?? '');
+  const pageIndex = z.coerce.number().parse(searchParams.get('page') ?? '1');
 
-      const data = await UserService.list(
-        filters.page,
-        filters.searchTerm
-      );
-
-      setUsers(data.users);
-      setPagination(data.pagination);
-    } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000)
-    }
-  }, [filters])
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  async function handlePageNext() {
-    setIsLoading(true);
-
-    pageNext();
-  }
-
-  async function handlePagePrevious() {
-    setIsLoading(true);
-
-    pagePrevious();
-  }
-
-  async function handlePageMove(pageNumber: string | number) {
-    setIsLoading(true);
-
-    pageMove(pageNumber);
-  }
+  const {
+    data: result,
+    isLoading: isLoadingService,
+    refetch,
+  } = useQuery({
+    queryKey: ['services', pageIndex],
+    queryFn: () =>
+      UserService.list(pageIndex, searchTerm),
+  });
 
   async function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter') {
-      setIsLoading(true);
-      onSearchTermChange(searchTerm)
-      await loadData();
-    }
-
-    if (event.key === 'Backspace' && event.currentTarget.value.length === 1) {
-      setIsLoading(true);
-      onSearchTermChange(searchTerm)
-      await loadData();
+      refetch();
     }
   };
 
-
   async function handleSearchTerm(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
+
+    setSearchParams(prevState => {
+      prevState.set('search', e.target.value);
+      return prevState;
+    });
+
+    if (!e.target.value) {
+      setSearchParams(prevState => {
+        prevState.delete('search');
+        return prevState;
+      });
+    }
   }
+
+  function handlePaginate(pageIndex: number) {
+    setSearchParams((prev) => {
+      prev.set('page', (pageIndex).toString())
+
+      return prev
+    })
+  }
+
 
   return (
     <div>
-      {isLoading && <Loader />}
+      {isLoadingService && <Loader />}
 
       <InputSearch
         onChange={handleSearchTerm}
@@ -104,7 +84,7 @@ export function UserManegement() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
+          {result?.users.map((user) => (
             <TableRow>
               <TableCell>
                 <Link to={`/edit-user/${user.idUser}`}>
@@ -125,14 +105,22 @@ export function UserManegement() {
         </TableBody>
       </Table>
 
+
+
       <FooterTable
-        onPageMove={handlePageMove}
-        onPageNext={handlePageNext}
-        onPagePrevious={handlePagePrevious}
-        pagination={pagination}
-        pathTo="/new-user"
-        buttonName="Novo Usuário"
-      />
+        onPageChange={handlePaginate}
+        pageIndex={pageIndex}
+        totalCount={result ? result.pagination.totalPages : 0}
+      >
+        <div className="lg:col-start-3 lg:justify-self-end justify-self-center">
+          <Link to="/new-user" state={{ searchParams: searchParams.toString() }}
+            className="w-96 h-[52px] justify-center items-center flex rounded bg-primary-light text-primary-foreground hover:bg-primary-hover font-bold text-xl"
+          >
+            <Plus size={24} />
+            Novo Usuário
+          </Link>
+        </div>
+      </FooterTable>
     </div>
   )
 }

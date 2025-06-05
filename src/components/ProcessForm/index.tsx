@@ -5,7 +5,7 @@ import { StepTwo } from "@/components/ProcessForm/step-two";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { IPropose } from "@/entities/ipropose";
-import { processSchema } from "@/schemas/process-schema";
+import { processSchema } from "@/schemas/create-process-schema";
 import { ProposeMapper } from "@/services/mappers/propose-mapper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ComponentPropsWithoutRef, createContext, useCallback, useContext, useState } from "react";
@@ -39,7 +39,7 @@ export function ProcessForm({ onSubmit, process }: ProcessFormProps) {
     mode: 'all',
     defaultValues: async () => {
       const data = ProposeMapper.toDomain(process ? process : {});
-      console.log(data, 'here');
+
       return data;
     }
   });

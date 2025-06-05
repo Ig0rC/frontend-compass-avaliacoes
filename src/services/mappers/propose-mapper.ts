@@ -1,5 +1,5 @@
 import { IPropose } from "@/entities/ipropose";
-import { processSchema } from "@/schemas/process-schema";
+import { processSchema } from "@/schemas/create-process-schema";
 import { clearMaskCurrency } from "@/utils/clearMaskCurrency";
 import { formatDate } from "@/utils/formatDate";
 import { maskCurrency } from "@/utils/maskCurrency";
@@ -76,7 +76,7 @@ export class ProposeMapper {
       proposeCep: data.basicInfoSchema.addressSchema.cep,
       proposeAddress: `${data.basicInfoSchema.addressSchema.street}, ${data.basicInfoSchema.addressSchema.number}, ${data.basicInfoSchema.addressSchema.neighborhood}, ${data.basicInfoSchema.addressSchema.city} - ${data.basicInfoSchema.addressSchema.uf}, ${data.basicInfoSchema.addressSchema.cep}`,
 
-      proposeDate: `${data.scheduleSchema.date.split('/').reverse().join('-')}T${data.scheduleSchema.hour}:00`,
+      proposeDate: `${data.scheduleSchema.date.split('T')[0]}T${data.scheduleSchema.hour}:00`,
       proposeDescription: data.scheduleSchema.description,
       proposeResType: data.basicInfoSchema.resType,
       proposeStatus: 'A',
@@ -96,7 +96,6 @@ export class ProposeMapper {
 
   static toDomain(data: Partial<IPropose>): z.infer<typeof processSchema> {
     const proposeDate = formatDate(data?.proposeDate)
-
     return {
       basicInfoSchema: {
         title: data.proposeTitle ?? '',
@@ -111,6 +110,7 @@ export class ProposeMapper {
           number: data.proposeAdditionalInfo?.proposeAddNumber ?? '',
           complement: data.proposeAdditionalInfo?.proposeAddComplement ?? '',
         },
+        proposeStatus: data?.proposeStatus ?? '',
       },
       clientSchema: {
         clientName: data.proposeAdditionalInfo?.proposeAddClientName ?? '',
@@ -121,7 +121,7 @@ export class ProposeMapper {
       },
       scheduleSchema: {
         description: data.proposeDescription ?? '',
-        date: proposeDate?.date ?? '',
+        date: data?.proposeDate ?? '',
         hour: proposeDate?.hour ?? '',
         phoneNumber: data.proposeAdditionalInfo?.proposesAddPhoneNumber ?? '',
         attachments: data.attachments ?? undefined,

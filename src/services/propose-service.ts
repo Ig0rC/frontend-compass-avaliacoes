@@ -1,13 +1,13 @@
-import { IPropose } from "@/entities/ipropose";
+import { IPropose, ProposeList } from "@/entities/ipropose";
 import { api } from "@/lib/api";
-import { processSchema } from "@/schemas/process-schema";
+import { processSchema } from "@/schemas/create-process-schema";
+import { updateProposeSchema } from "@/schemas/update-propose-schema";
 import QueryString from "qs";
 import { z } from "zod";
 import { ProposeMapper } from "./mappers/propose-mapper";
 
-
-interface IGetProposesResponse {
-  proposes: IPropose[]
+export interface IGetProposesResponse {
+  proposes: ProposeList[]
   pagination: {
     currentPage: number
     pageSize: number
@@ -18,20 +18,17 @@ interface IGetProposesResponse {
   }
 }
 
-interface IGetProposesParams {
+export interface IGetProposesParams {
   page: number;
   searchTerm: string;
-  inspectionDateFrom?: Date;
-  inspectionDateTo?: Date;
-  proposeDateFrom?: Date;
-  proposeDateTo?: Date;
-  userInfoIdUser?: string;
-  proposeStatus?: string | string[];
-  inspectionStatus?: string[],
+  inspectionDateFrom?: Date | null;
+  inspectionDateTo?: Date | null;
+  proposeDateFrom?: Date | null;
+  proposeDateTo?: Date | null;
+  userInfoIdUser?: string | null;
+  proposeStatus?: string | string[] | null;
+  inspectionStatus?: string[] | null,
 }
-
-
-
 
 interface IGetExportProposesParams {
   inspectionDateTo?: Date;
@@ -43,6 +40,9 @@ interface IGetExportProposesParams {
   searchTerm?: string;
   inspectionStatus?: string | string[];
 }
+
+
+
 
 export class ProposeService {
   static async create(body: z.infer<typeof processSchema>) {
@@ -85,6 +85,12 @@ export class ProposeService {
     }
 
     await api.put(`/proposes/${id}`, dataMapper);
+  }
+
+  static async updateInTable(propose: z.infer<typeof updateProposeSchema>) {
+    await api.put(`/proposes/update-in-table/${propose.idProposes}`, {
+      ...propose,
+    });
   }
 
   static async getProposes(params: IGetProposesParams) {
@@ -134,3 +140,5 @@ export class ProposeService {
     });
   }
 }
+
+

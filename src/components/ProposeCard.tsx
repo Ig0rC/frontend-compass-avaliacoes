@@ -1,5 +1,5 @@
 // components/ProposeCard.tsx
-import { IPropose } from '@/entities/ipropose';
+import { ProposeList } from '@/entities/ipropose';
 import { Draggable } from '@hello-pangea/dnd';
 import { Link } from 'react-router-dom';
 
@@ -16,7 +16,7 @@ const PROPOSE_COLORS = {
 
 
 interface ProposeCardProps {
-  propose: IPropose;
+  propose: ProposeList;
   index: number;
 }
 

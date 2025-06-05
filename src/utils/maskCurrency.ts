@@ -1,5 +1,5 @@
 
-export function maskCurrency(currency: string | number | undefined, onlyFormat: boolean = false) {
+export function maskCurrency(currency: string | number | undefined, onlyFormat: boolean = false): string {
   if (typeof currency === 'undefined') {
     return 'R$'
   }

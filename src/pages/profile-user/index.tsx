@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from 'axios';
 import { useContext, useState } from 'react';
 import { useForm } from "react-hook-form";
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from "zod";
 
@@ -28,7 +28,8 @@ const formSchema = z.object({
 
 export function ProfileUser() {
   const { signOut } = useContext(AuthContext);
-
+  const location = useLocation();
+  const searchParams = location.state?.searchParams || 'page=1';
   const [userlocal] = useState(JSON.parse(localStorage.getItem('user') as string));
   const [user, setUser] = useState<IUser | null>(null);
 
@@ -69,7 +70,7 @@ export function ProfileUser() {
 
 
   return (
-    <ContainerFormLayout pathTo="/">
+    <ContainerFormLayout pathTo={`/?${searchParams}`}>
       {form.formState.isLoading && <Loader />}
       <TitleForm title="Meu Perfil" />
 

@@ -23,6 +23,7 @@ export const basicInfoSchema = z.object({
   processNumber: z.string().min(1, errorMessages.required('um número do processo')),
   resType: z.string().min(1, errorMessages.required('um tipo de imóvel')),
   addressSchema: addressSchema,
+  proposeStatus: z.string().optional(),
 });
 
 const scheduleSchema = z.object({

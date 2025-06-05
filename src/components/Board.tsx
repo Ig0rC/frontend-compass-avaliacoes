@@ -1,5 +1,5 @@
 // App.tsx
-import { IPropose } from '@/entities/ipropose';
+import { ProposeList } from '@/entities/ipropose';
 import { ProposeService } from '@/services/propose-service';
 import { KanbanData } from '@/types/i-kanban';
 import { initialData } from '@/utils/kanbanData';
@@ -9,12 +9,12 @@ import { toast } from 'sonner';
 import Column from './Column';
 
 interface Props {
-  proposes: IPropose[];
+  proposes: ProposeList[];
 }
 
 function Board({ proposes }: Props) {
   const [data, setData] = useState<KanbanData>(initialData);
-  console.log(proposes)
+
   // Função para mapear o status para o ID da coluna
   const getColumnId = (status: string): string => {
     switch (status) {
@@ -78,11 +78,10 @@ function Board({ proposes }: Props) {
     proposes.forEach(propose => {
       newData.proposes[propose.idProposes] = propose;
 
-      console.log(newData);
 
       // Adicionar o ID da proposta à coluna apropriada
       const columnId = getColumnId(propose.proposeStatus);
-      console.log(newData.columns[columnId])
+
       newData.columns[columnId].proposeIds.push(propose.idProposes);
     });
 

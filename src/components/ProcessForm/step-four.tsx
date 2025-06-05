@@ -1,6 +1,6 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { IUser } from "@/entities/i-user-supplier";
-import { processSchema } from "@/schemas/process-schema";
+import { processSchema } from "@/schemas/create-process-schema";
 import { UserSupplierService } from "@/services/user-supplier-service";
 import { maskCurrency } from "@/utils/maskCurrency";
 import { maskPhoneNumber } from "@/utils/maskPhoneNumber";

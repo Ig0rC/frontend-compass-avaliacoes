@@ -1,14 +1,12 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { IPropose } from "@/entities/ipropose";
+import { ProposeList } from "@/entities/ipropose";
 import { cn } from "@/lib/utils";
-import { processSchema } from "@/schemas/process-schema";
-import { ProposeMapper } from "@/services/mappers/propose-mapper";
+import { updateProposeSchema } from "@/schemas/update-propose-schema";
 import { formatDate } from "@/utils/formatDate";
 import { getStatus } from "@/utils/getStatus";
 import { maskCep } from "@/utils/maskCEP";
 import { maskCurrency } from "@/utils/maskCurrency";
-import { maskDate } from "@/utils/maskDate";
 import { propertyTypes } from "@/utils/propertyTypes";
 import { states } from "@/utils/states";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +18,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "./ui/button";
+import { DatePicker } from "./ui/date-picker";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -27,8 +26,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Textarea } from "./ui/textarea";
 
 interface CustomServiceTableProps {
-  proposes: IPropose[];
-  onUpdatePropose: (selectedPropose: IPropose, data: z.infer<typeof processSchema>) => Promise<void>;
+  proposes: ProposeList[];
+  onUpdatePropose: (selectedPropose: ProposeList, data: z.infer<typeof updateProposeSchema>) => Promise<void>;
+  searchParams: string;
 }
 
 interface IGetCepResponse {
@@ -39,43 +39,65 @@ interface IGetCepResponse {
   uf: string;
 }
 
-export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceTableProps) {
-  const form = useForm<z.infer<typeof processSchema>>({
-    resolver: zodResolver(processSchema)
+export function CustomServiceTable({ proposes, onUpdatePropose, searchParams }: CustomServiceTableProps) {
+  const form = useForm<z.infer<typeof updateProposeSchema>>({
+    mode: 'onBlur',
+    resolver: zodResolver(updateProposeSchema)
   });
-  const [selectedPropose, setSelectedPropose] = useState<IPropose | null>(null);
 
-  function handleSelectedProposeEdit(propose: IPropose) {
+
+  console.log(form.formState.errors)
+
+  const [selectedPropose, setSelectedPropose] = useState<ProposeList | null>(null);
+
+  function handleSelectedProposeEdit(propose: ProposeList) {
+    console.log(propose);
     setSelectedPropose(propose);
 
-    form.reset(ProposeMapper.toDomain(propose));
+    form.reset({
+      idProposes: propose.idProposes,
+      proposeCep: propose.proposeCep,
+      proposeDescription: propose.proposeDescription,
+      proposeAdditionalInfo: {
+        ...propose.proposeAdditionalInfo,
+        proposeAddKmValue: maskCurrency(propose.proposeAdditionalInfo.proposeAddKmValue, true),
+        proposeAddAvaliationValue: maskCurrency(propose.proposeAdditionalInfo.proposeAddAvaliationValue, true),
+        proposeAddDisplacementValue: maskCurrency(propose.proposeAdditionalInfo.proposeAddDisplacementValue, true),
+      },
+      proposeDate: propose.proposeDate,
+      proposeResType: propose.proposeResType,
+      proposeStatus: propose.proposeStatus
+    });
   }
 
-  async function onSubmit(data: z.infer<typeof processSchema>) {
+  async function onSubmit(data: z.infer<typeof updateProposeSchema>) {
     if (selectedPropose) {
-
-      await onUpdatePropose(selectedPropose, data);
+      console.log(selectedPropose);
+      await onUpdatePropose({
+        ...selectedPropose,
+        proposeDate: `${data.proposeDate}T${selectedPropose.proposeDate.split('T')[1]}`
+      }, data);
 
       setSelectedPropose(null);
     }
   };
 
   function handleCepChange(value: string) {
-    form.setValue('cep', value);
     if (value.length === 10) {
       axios.get<IGetCepResponse>(`https://viacep.com.br/ws/${value.replace(/\D/g, '')}/json/`)
         .then(({ data }) => {
-          form.setValue('street', data.logradouro);
-          form.setValue('neighborhood', data.bairro);
-          form.setValue('complement', data.complemento);
-          form.setValue('city', data.localidade);
-          form.setValue('uf', data.uf);
-        }).catch((error) => {
-          console.log(error)
+          form.setValue('proposeAdditionalInfo.proposeAddStreet', data.logradouro);
+          form.setValue('proposeAdditionalInfo.proposeAddNeighborhood', data.bairro);
+          form.setValue('proposeAdditionalInfo.proposeAddComplement', data.complemento);
+          form.setValue('proposeAdditionalInfo.proposeAddCity', data.localidade);
+          form.setValue('proposeAdditionalInfo.proposeAddUf', data.uf);
+        }).catch(() => {
           toast.error('Não foi possível buscar o endereço!')
         });
     }
+    form.setValue('proposeCep', value)
   }
+
 
   return (
     <Form {...form}  >
@@ -105,7 +127,9 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                 return (
                   <TableRow key={data.idProposes}>
                     <TableCell>
-                      <Link to={`edit-process/${data.idProposes}`}>
+                      <Link
+                        state={{ searchParams }}
+                        to={`edit-process/${data.idProposes}`}>
                         <Search size={21} className="text-primary" />
                       </Link>
                     </TableCell>
@@ -113,12 +137,12 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                     <TableCell>
                       <FormField
                         control={form.control}
-                        name="processNumber"
+                        name="proposeAdditionalInfo.proposesAddProposeNumber"
                         render={({ field, formState }) => (
                           <FormItem>
                             <FormControl>
                               <Input
-                                className={formState.errors.processNumber && 'border-red-500'}
+                                className={cn(formState.errors.proposeAdditionalInfo?.proposesAddProposeNumber && 'border-red-500', 'max-w-[150px]')}
                                 {...field}
                               />
                             </FormControl>
@@ -130,18 +154,21 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                     <TableCell>
                       <FormField
                         control={form.control}
-                        name="resType"
+                        name="proposeResType"
                         render={({ field, formState }) => (
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger className={formState.errors.resType && 'border-red-500'}
+                              <SelectTrigger className={formState.errors?.proposeResType && 'border-red-500'}
                               >
                                 <SelectValue placeholder="Selecione" />
                               </SelectTrigger>
                             </FormControl>
+
                             <SelectContent>
                               {propertyTypes.map((propertyType) => (
-                                <SelectItem key={propertyType} value={propertyType}>{propertyType}</SelectItem>
+                                <SelectItem key={propertyType} value={propertyType}>
+                                  {propertyType.trim()}
+                                </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -151,8 +178,8 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
 
                     <TableCell>
                       <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline">{data.proposeAddress.slice(0, 22)}...</Button>
+                        <PopoverTrigger asChild className="w-full m-0 justify-start">
+                          <Button className="m-0" variant="outline">{data.proposeAddress?.slice(0, 35)}...</Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[400px] bg-white">
                           <div className="grid gap-4">
@@ -162,7 +189,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                             <div className="grid gap-2">
                               <FormField
                                 control={form.control}
-                                name="cep"
+                                name="proposeCep"
                                 render={({ field }) => (
                                   <FormItem className="grid grid-flow-row grid-cols-4 items-center" >
                                     <FormLabel>Cep</FormLabel>
@@ -182,7 +209,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
 
                               <FormField
                                 control={form.control}
-                                name="city"
+                                name="proposeAdditionalInfo.proposeAddCity"
                                 render={({ field }) => (
                                   <FormItem className="grid grid-flow-row grid-cols-4 items-center" >
                                     <FormLabel>Estado</FormLabel>
@@ -196,7 +223,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                               />
                               <FormField
                                 control={form.control}
-                                name="uf"
+                                name="proposeAdditionalInfo.proposeAddUf"
                                 render={({ field }) => (
                                   <FormItem className="grid grid-flow-row grid-cols-4 items-center" >
                                     <FormLabel>Estado</FormLabel>
@@ -219,7 +246,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
 
                               <FormField
                                 control={form.control}
-                                name="street"
+                                name="proposeAdditionalInfo.proposeAddStreet"
                                 render={({ field }) => (
                                   <FormItem className="grid grid-flow-row grid-cols-4 items-center" >
                                     <FormLabel>Rua</FormLabel>
@@ -233,7 +260,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
 
                               <FormField
                                 control={form.control}
-                                name="neighborhood"
+                                name="proposeAdditionalInfo.proposeAddNeighborhood"
                                 render={({ field }) => (
                                   <FormItem className="grid grid-flow-row grid-cols-4 items-center" >
                                     <FormLabel>Bairro</FormLabel>
@@ -247,7 +274,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
 
                               <FormField
                                 control={form.control}
-                                name="number"
+                                name="proposeAdditionalInfo.proposeAddNumber"
                                 render={({ field }) => (
                                   <FormItem className="grid grid-flow-row grid-cols-4 items-center" >
                                     <FormLabel>Número</FormLabel>
@@ -260,7 +287,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                               />
                               <FormField
                                 control={form.control}
-                                name="complement"
+                                name="proposeAdditionalInfo.proposeAddComplement"
                                 render={({ field }) => (
                                   <FormItem className="grid grid-flow-row grid-cols-4 items-center" >
                                     <FormLabel>Comple.</FormLabel>
@@ -279,36 +306,22 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                     </TableCell>
 
                     <TableCell>
-                      <FormField
-                        control={form.control}
-                        name="proposeSolicitationDate"
-                        render={({ field, formState }) => (
-                          <FormControl>
-                            <Input
-                              {...field}
-                              maxLength={10}
-                              className={formState.errors.proposeSolicitationDate && 'border-red-500'}
-                              value={maskDate(field.value || '')}
-                            />
-                          </FormControl>
-                        )}
-                      />
-
+                      {formatDate(data.proposeAdditionalInfo?.proposesAddSolicitationDate).date}
                     </TableCell>
 
                     <TableCell>
 
                       <FormField
                         control={form.control}
-                        name="date"
+                        name="proposeDate"
                         render={({ field, formState }) => (
                           <FormControl>
-                            <Input
-                              placeholder="__/__/____"
-                              maxLength={10}
-                              className={formState.errors.date && 'border-red-500'}
-                              {...field}
-                              value={maskDate(field.value)}
+                            <DatePicker
+                              className={cn(formState.errors?.proposeDate && 'border-red-500', 'max-w-[160px]')}
+                              value={new Date(field.value)}
+                              onSelect={(date) => {
+                                field.onChange(date?.toISOString())
+                              }}
                             />
                           </FormControl>
 
@@ -329,12 +342,12 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                             </FormControl>
 
                             <SelectContent>
+                              <SelectItem value="N">Novo</SelectItem>
+                              <SelectItem value="A">Aceito</SelectItem>
                               <SelectItem value="P">Em Andamento</SelectItem>
-                              <SelectItem value="M">Fazer Laudo</SelectItem>
-                              <SelectItem value="T">Remarcar</SelectItem>
-                              <SelectItem value="D">Problemas no Docs</SelectItem>
-                              <SelectItem value="R">Cancelado</SelectItem>
+                              <SelectItem value="R">Recusado</SelectItem>
                               <SelectItem value="F">Finalizado</SelectItem>
+                              <SelectItem value="X">Cancelado</SelectItem>
                             </SelectContent>
                           </Select>
                         )}
@@ -342,20 +355,20 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                     </TableCell>
 
                     <TableCell >
-                      {'Não Entregue'}
+                      {formatDate(selectedPropose.inspections.inspectionDate).date}
                     </TableCell>
 
                     <TableCell >
                       <FormControl>
                         <FormField
                           control={form.control}
-                          name="avaliationValue"
+                          name="proposeAdditionalInfo.proposeAddAvaliationValue"
                           render={({ field, formState }) => (
                             <Input
                               {...field}
                               placeholder="R$"
-                              className={formState.errors.avaliationValue && 'border-red-500'}
                               onChange={(e) => field.onChange(maskCurrency(e.target.value))}
+                              className={cn(formState.errors.proposeAdditionalInfo?.proposeAddAvaliationValue && 'border - red - 500', 'max-w-[130px]')}
                             />
                           )}
                         />
@@ -366,14 +379,15 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                     <TableCell>
                       <FormField
                         control={form.control}
-                        name="kmValue"
+                        name="proposeAdditionalInfo.proposeAddKmValue"
                         render={({ field, formState }) => (
                           <FormControl>
                             <Input
                               {...field}
                               placeholder="R$ "
+                              value={maskCurrency(field.value)}
                               onChange={(e) => field.onChange(maskCurrency(e.target.value))}
-                              className={formState.errors.kmValue && 'border-red-500'}
+                              className={cn(formState.errors.proposeAdditionalInfo?.proposeAddKmValue && 'border - red - 500', 'max-w-[130px]')}
                             />
                           </FormControl>
 
@@ -384,14 +398,15 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                     <TableCell>
                       <FormField
                         control={form.control}
-                        name="displacementValue"
+                        name="proposeAdditionalInfo.proposeAddDisplacementValue"
                         render={({ field, formState }) => (
                           <FormControl>
                             <Input
                               {...field}
                               placeholder="R$ "
+                              value={maskCurrency(field.value)}
                               onChange={(e) => field.onChange(maskCurrency(e.target.value))}
-                              className={formState.errors.displacementValue && 'border-red-500'}
+                              className={cn(formState.errors.proposeAdditionalInfo?.proposeAddDisplacementValue && 'border-red-500', 'max-w-[130px]')}
                             />
                           </FormControl>
                         )}
@@ -401,20 +416,19 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                     <TableCell>
                       <FormField
                         control={form.control}
-                        name="description"
+                        name="proposeDescription"
                         render={({ field, formState }) => (
                           <Popover>
                             <PopoverTrigger className="text-black underline">
-                              <Button type="button" variant="outline">{data.proposeDescription.slice(0, 10)}...</Button>
+                              <Button type="button" variant="outline">{data.proposeDescription?.slice(0, 10)}...</Button>
                             </PopoverTrigger>
                             <PopoverContent>
                               <FormControl>
                                 <Textarea
                                   {...field}
-                                  className={formState.errors.description && 'border-red-500'}
+                                  className={formState.errors.proposeDescription && 'border-red-500'}
                                 />
                               </FormControl>
-
                             </PopoverContent>
                           </Popover>
                         )}
@@ -437,7 +451,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
               return (
                 <TableRow key={data.idProposes}>
                   <TableCell>
-                    <Link to={`edit-process/${data.idProposes}`}>
+                    <Link state={{ searchParams }} to={`edit-process/${data.idProposes}`}>
                       <Search size={21} className="text-primary" />
                     </Link>
                   </TableCell>
@@ -450,7 +464,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose }: CustomServiceT
                   </TableCell>
 
                   <TableCell>
-                    {data.proposeAddress.slice(0, 46)}...
+                    {data.proposeAddress?.slice(0, 46)}...
                   </TableCell>
 
                   <TableCell>

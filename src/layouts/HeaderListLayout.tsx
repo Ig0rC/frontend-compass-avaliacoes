@@ -8,13 +8,14 @@ import { UserService } from "@/services/user-service";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { Bell, BellRing, CircleCheck, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 export function HeaderListLayout() {
   const [, setSocket] = useState<WebSocket | null>(null);
   const [notifications, setNotifications] = useState<INotifications[]>([]);
   const [user, setUser] = useState<IUser | null>(null);
+  const [searchParams] = useSearchParams();
 
 
   useEffect(() => {
@@ -31,17 +32,14 @@ export function HeaderListLayout() {
 
     ws.onmessage = async (event) => {
       if (event.data) {
-        console.log(data);
         const notificationData = JSON.parse(event.data);
 
         const newNotification = await NotificationService.findById(notificationData.notificationId);
 
         const isExistNotification = data.find((notification) => {
-          console.log(notification.id, newNotification.id, 'here')
           return notification.id === newNotification.id
         });
 
-        console.log(isExistNotification)
         if (isExistNotification) return;
 
         setNotifications(prevState => [newNotification, ...prevState])
@@ -105,7 +103,7 @@ export function HeaderListLayout() {
     <div className="px-[40px] box-border w-full m-auto h-full flex flex-col bg-[#FAFAFA]">
       <header className="bg-grey-50 flex justify-between items-center">
 
-        <Link to="/profile-user" className="flex justify-between items-center gap-6">
+        <Link state={{ searchParams: searchParams.toString() }} to="/profile-user" className="flex justify-between items-center gap-6">
           <PhotoProfile
             classNamePhoto="max-w-16 max-h-16 w-full h-full"
             className="max-w-20 max-h-20"

@@ -1,6 +1,6 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { api } from "@/lib/api";
-import { processSchema } from "@/schemas/process-schema";
+import { processSchema } from "@/schemas/create-process-schema";
 import { AttachmentService } from "@/services/attachment-service";
 import { maskDate } from "@/utils/maskDate";
 import { maskHour } from "@/utils/maskHour";
@@ -40,7 +40,6 @@ export function StepTwo() {
   async function handleStepperNext() {
     const isValid = await trigger('scheduleSchema');
 
-    console.log(isValid);
 
     if (isValid) {
       nextStep();
@@ -48,7 +47,6 @@ export function StepTwo() {
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('handleFileChange')
     const newFiles = Array.from(e.target.files || []);
     const currentFiles = getValues("scheduleSchema.files") || [];
 
@@ -143,7 +141,6 @@ export function StepTwo() {
 
       toast.success('Anexo criado com sucesso')
     } catch (error) {
-      console.log(error)
       toast.error('Erro ao criar anexo')
     } finally {
       setIsLoading(false)
@@ -160,7 +157,6 @@ export function StepTwo() {
     }
   }, [filesSaved]);
 
-  console.log(attachments);
   return (
     <>
       {isLoading && <Loader />}

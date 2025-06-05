@@ -1,5 +1,5 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { processSchema } from "@/schemas/process-schema";
+import { processSchema } from "@/schemas/create-process-schema";
 import { colors } from "@/utils/colors";
 import { maskPhoneNumber } from "@/utils/maskPhoneNumber";
 import { useFormContext } from "react-hook-form";
@@ -24,7 +24,6 @@ export function StepThree() {
   async function handleStepperNext() {
     const isValid = await trigger('clientSchema');
 
-    console.log(isValid);
 
     if (isValid) {
       nextStep();

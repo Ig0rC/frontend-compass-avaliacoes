@@ -23,7 +23,7 @@ export interface IFiltersChange {
   inspectionStatus?: string[],
 }
 
-export function useQuery(filter: 'filtersUser' | 'filters' = 'filters') {
+export function useQueryCustom(filter: 'filtersUser' | 'filters' = 'filters') {
   const [pagination, setPagination] = useState({
     currentPage: 1,
     pageSize: 10,
