@@ -60,7 +60,7 @@ export function ListServices() {
 
   const { mutateAsync: updatePropose } = useMutation({
     mutationFn: ProposeService.updateInTable,
-    onSuccess(dataApi, variables) {
+    onSuccess(_, variables) {
       queryClient.setQueryData<IGetProposesResponse>(
         ['services', pageIndex, userInfoIdUser, inspectionStatus, proposeStatus, proposeDateTo, inspectionDateTo], (cached) => {
           if (!cached) return cached;
