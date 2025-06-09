@@ -49,6 +49,7 @@ interface DomainPropose {
 
 export class ProposeMapper {
   static toPersistence(data: z.infer<typeof processSchema>): DomainPropose {
+    console.log(data.scheduleSchema.date)
     return {
       proposeAdditionalInfo: {
         proposesAddProposeNumber: data.basicInfoSchema.processNumber,
@@ -76,7 +77,7 @@ export class ProposeMapper {
       proposeCep: data.basicInfoSchema.addressSchema.cep,
       proposeAddress: `${data.basicInfoSchema.addressSchema.street}, ${data.basicInfoSchema.addressSchema.number}, ${data.basicInfoSchema.addressSchema.neighborhood}, ${data.basicInfoSchema.addressSchema.city} - ${data.basicInfoSchema.addressSchema.uf}, ${data.basicInfoSchema.addressSchema.cep}`,
 
-      proposeDate: `${data.scheduleSchema.date.toISOString().split('T')[0]}T${data.scheduleSchema.hour}:00`,
+      proposeDate: `${data.scheduleSchema.date}T${data.scheduleSchema.hour}:00`,
       proposeDescription: data.scheduleSchema.description,
       proposeResType: data.basicInfoSchema.resType,
       proposeStatus: 'A',
