@@ -158,9 +158,6 @@ export function EditProcess() {
     }
   }
 
-
-
-
   return (
     <ContainerFormLayout pathTo={`/?${searchParams}`}>
       {isLoading && <Loader />}

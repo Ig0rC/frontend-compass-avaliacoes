@@ -15,11 +15,7 @@ export function NewProcess() {
   const searchParams = location.state?.searchParams;
 
   async function handleSubmit(data: ProcessFormData) {
-    console.log(data);
-
-
     const idPropose = await ProposeService.create(data);
-
     navigate(`/edit-process/${idPropose}`, {
       replace: true,
       state: { from: location.state?.from || '/' }
