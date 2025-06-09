@@ -76,7 +76,7 @@ export class ProposeMapper {
       proposeCep: data.basicInfoSchema.addressSchema.cep,
       proposeAddress: `${data.basicInfoSchema.addressSchema.street}, ${data.basicInfoSchema.addressSchema.number}, ${data.basicInfoSchema.addressSchema.neighborhood}, ${data.basicInfoSchema.addressSchema.city} - ${data.basicInfoSchema.addressSchema.uf}, ${data.basicInfoSchema.addressSchema.cep}`,
 
-      proposeDate: `${data.scheduleSchema.date.split('/').reverse().join('-')}T${data.scheduleSchema.hour}:00`,
+      proposeDate: `${data.scheduleSchema.date.toISOString().split('T')[0]}T${data.scheduleSchema.hour}:00`,
       proposeDescription: data.scheduleSchema.description,
       proposeResType: data.basicInfoSchema.resType,
       proposeStatus: 'A',
@@ -121,7 +121,7 @@ export class ProposeMapper {
       },
       scheduleSchema: {
         description: data.proposeDescription ?? '',
-        date: data?.proposeDate ?? '',
+        date: proposeDate?.date ?? '',
         hour: proposeDate?.hour ?? '',
         phoneNumber: data.proposeAdditionalInfo?.proposesAddPhoneNumber ?? '',
         attachments: data.attachments ?? undefined,
@@ -144,9 +144,6 @@ export class ProposeMapper {
           notifications: data?.user?.notifications || [],
         }
       },
-
-
-      // proposeSolicitationDate: new Date(data.proposeAdditionalInfo.proposesAddSolicitationDate).toLocaleDateString('pt-BR'),
     };
   }
 }

@@ -33,16 +33,20 @@ interface ProcessFormProps {
 export function ProcessForm({ onSubmit, process }: ProcessFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(process ? 6 : 1);
+  const [isFormReady, setIsFormReady] = useState(false);
 
   const methods = useForm<ProcessFormData>({
     resolver: zodResolver(processSchema),
     mode: 'all',
     defaultValues: async () => {
       const data = ProposeMapper.toDomain(process ? process : {});
+      setIsFormReady(true); // <- Marca que os dados foram carregados
 
       return data;
     }
   });
+
+
 
   const { handleSubmit } = methods;
 
@@ -84,6 +88,11 @@ export function ProcessForm({ onSubmit, process }: ProcessFormProps) {
       setIsLoading(false);
     }
   }
+
+  if (!isFormReady) {
+    return <Loader />; // ou null, ou uma animação, etc.
+  }
+
 
   return (
     <StepperContext.Provider value={{ nextStep, previousStep, currentStep }}>

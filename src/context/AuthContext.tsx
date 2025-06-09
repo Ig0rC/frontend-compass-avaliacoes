@@ -67,7 +67,7 @@ export default function AuthContextProvider({ children }: IAuthContextProviderPr
           console.log(error.response.data)
           toast.error(error.response.data?.error || error.response.data || 'Ops, aconteceu algum erro!');
         }
-
+        console.log(error);
         return Promise.reject(error)
       }
     )

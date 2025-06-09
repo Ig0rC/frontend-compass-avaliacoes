@@ -6,7 +6,7 @@ import { maskCep } from "@/utils/maskCEP"
 import { propertyTypes } from "@/utils/propertyTypes"
 import { states } from "@/utils/states"
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -31,15 +31,22 @@ export function StepOne() {
   const {
     setValue,
     control,
-    watch,
     trigger,
-    formState
   } = useFormContext<z.infer<typeof processSchema>>();
-  const cep = watch('basicInfoSchema.addressSchema.cep')
-  console.log(cep, cep?.length === 10, formState.isDirty)
-  useEffect(() => {
-    if (cep && cep?.length === 10 && formState.isDirty) {
-      setIsLoading(true);
+
+
+  async function handleStepperNext() {
+    const isValid = await trigger('basicInfoSchema');
+
+    if (isValid) {
+      nextStep();
+    }
+  }
+
+  function handleCepChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const cep = e.target.value?.replace(/[^\d]/g, '');
+
+    if (cep.length === 8) {
       axios.get<IGetCepResponse>(`https://viacep.com.br/ws/${cep.replace(/\D/g, '')}/json/`)
         .then(({ data }) => {
           setValue('basicInfoSchema.addressSchema.street', data.logradouro);
@@ -51,14 +58,8 @@ export function StepOne() {
           toast.error('Não foi possível buscar o endereço!')
         }).finally(() => setIsLoading(false));
     }
-  }, [cep, setValue]);
 
-  async function handleStepperNext() {
-    const isValid = await trigger('basicInfoSchema');
-
-    if (isValid) {
-      nextStep();
-    }
+    setValue('basicInfoSchema.addressSchema.cep', cep);
   }
 
 
@@ -127,7 +128,7 @@ export function StepOne() {
           <FormItem className="lg:max-w-56">
             <FormLabel>Cep</FormLabel>
             <FormControl>
-              <Input maxLength={10} className="text-black/50" placeholder="Cep" {...field} value={maskCep(field.value)} />
+              <Input maxLength={10} className="text-black/50" placeholder="Cep" {...field} onChange={handleCepChange} value={maskCep(field.value)} />
             </FormControl>
             <FormMessage />
           </FormItem>

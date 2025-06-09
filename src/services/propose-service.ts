@@ -70,7 +70,7 @@ export class ProposeService {
 
   static async update(id: string | number, body: z.infer<typeof processSchema>) {
     const dataMapper = ProposeMapper.toPersistence(body);
-
+    console.log(dataMapper.proposeDate)
     if (body.scheduleSchema.files) {
       for (let i = 0; i < body.scheduleSchema.files.length; i++) {
         const formData = new FormData();

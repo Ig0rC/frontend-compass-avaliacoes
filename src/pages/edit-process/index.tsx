@@ -71,7 +71,8 @@ export function EditProcess() {
       }
 
       toast.error('Erro ao atualizar o processo');
-    } catch {
+    } catch (error) {
+      console.log(error);
       toast.error('Erro ao atualizar o processo');
     }
   }
