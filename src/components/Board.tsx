@@ -162,7 +162,6 @@ function Board({ proposes }: Props) {
       const newStatus = getStatusFromColumnId(destination.droppableId);
       await ProposeService.updateStatus(proposeId, newStatus);
       toast.success('Status atualizado com sucesso!');
-      console.log(proposeId, newStatus)
     } catch {
       toast.error('Não foi possível atualizar o status!');
     }

@@ -50,10 +50,6 @@ export function HeaderListLayout() {
       console.error('Erro:', error);
     };
 
-    ws.onclose = () => {
-      console.log('Desconectado');
-    };
-
     setSocket(ws);
 
     return () => ws.close();
@@ -65,13 +61,6 @@ export function HeaderListLayout() {
 
       setNotifications((prevState) => prevState.map((notification) => {
         if (id === notification?.recipients[0]?.id) {
-          console.log({
-            ...notification,
-            recipients: [{
-              ...notification.recipients[0],
-              status: 'read',
-            }]
-          })
           return {
             ...notification,
             recipients: [{

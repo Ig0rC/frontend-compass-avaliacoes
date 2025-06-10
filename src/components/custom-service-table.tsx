@@ -45,13 +45,9 @@ export function CustomServiceTable({ proposes, onUpdatePropose, searchParams }: 
     resolver: zodResolver(updateProposeSchema)
   });
 
-
-  console.log(form.formState.errors)
-
   const [selectedPropose, setSelectedPropose] = useState<ProposeList | null>(null);
 
   function handleSelectedProposeEdit(propose: ProposeList) {
-    console.log(propose);
     setSelectedPropose(propose);
 
     form.reset({
@@ -72,7 +68,7 @@ export function CustomServiceTable({ proposes, onUpdatePropose, searchParams }: 
 
   async function onSubmit(data: z.infer<typeof updateProposeSchema>) {
     if (selectedPropose) {
-      console.log(selectedPropose);
+
       await onUpdatePropose({
         ...selectedPropose,
         proposeDate: `${data.proposeDate}T${selectedPropose.proposeDate.split('T')[1]}`

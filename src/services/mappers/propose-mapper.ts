@@ -49,7 +49,6 @@ interface DomainPropose {
 
 export class ProposeMapper {
   static toPersistence(data: z.infer<typeof processSchema>): DomainPropose {
-    console.log(data.scheduleSchema.date)
     return {
       proposeAdditionalInfo: {
         proposesAddProposeNumber: data.basicInfoSchema.processNumber,

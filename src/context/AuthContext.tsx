@@ -64,10 +64,9 @@ export default function AuthContextProvider({ children }: IAuthContextProviderPr
         }
 
         if (error.response.status === 400) {
-          console.log(error.response.data)
           toast.error(error.response.data?.error || error.response.data || 'Ops, aconteceu algum erro!');
         }
-        console.log(error);
+
         return Promise.reject(error)
       }
     )

@@ -32,8 +32,7 @@ export function ForgotPassword() {
 
       navigate(`/sign-in`);
       toast.success('Caso email seja válido, um link de redefinição de senha será enviado.');
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.error('Erro ao resetar senha');
     }
   }
