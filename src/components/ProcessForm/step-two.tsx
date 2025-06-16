@@ -36,7 +36,6 @@ export function StepTwo() {
   const [fileNames, setFileNames] = useState<string[]>([]);
   const filesSaved = getValues("scheduleSchema.files");
   const attachments = getValues("scheduleSchema.attachments");
-
   async function handleStepperNext() {
     const isValid = await trigger('scheduleSchema');
 
@@ -140,7 +139,7 @@ export function StepTwo() {
       }); // Atualiza os arquivos no formulário
 
       toast.success('Anexo criado com sucesso')
-    } catch (error) {
+    } catch {
       toast.error('Erro ao criar anexo')
     } finally {
       setIsLoading(false)

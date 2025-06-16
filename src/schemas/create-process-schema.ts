@@ -30,7 +30,14 @@ const scheduleSchema = z.object({
   date: z
     .string()
     .min(1, { message: 'Informe uma data' })
-    .transform((val) => new Date(val)) // transforma string em Date
+    .transform((val) => {
+      const [day, month, year] = val.split('/');
+      const date = new Date(`${year}-${month}-${day}T00:00:00`);
+      return date;
+    })
+    .refine((date) => !isNaN(date.getTime()), {
+      message: 'Data inválida!',
+    })
     .refine((date) => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -39,13 +46,11 @@ const scheduleSchema = z.object({
       message: 'Não permitido data anterior!',
     })
     .transform((date) => {
-      // volta para string no formato YYYY-MM-DD
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     }),
-
   hour: z.string().min(1, errorMessages.required('um horário')),
   phoneNumber: z.string()
     .min(1, errorMessages.required('um número de telefone'))
