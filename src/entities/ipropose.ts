@@ -71,5 +71,5 @@ export interface IPropose {
   }[]
 }
 
-export type ProposeList = Pick<IPropose, 'idProposes' | 'proposeResType' | 'proposeCep' | 'proposeAddress' | 'proposeDate' | 'proposeStatus' | 'proposeAdditionalInfo' | 'inspections' | 'proposeDescription'>;
 
+export type ProposesList = Pick<IPropose, 'idProposes' | 'proposeResType' | 'proposeCep' | 'proposeAddress' | 'proposeDate' | 'proposeStatus' | 'proposeAdditionalInfo' | 'inspections' | 'proposeDescription' | 'user'>;

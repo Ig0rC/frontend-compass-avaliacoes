@@ -1,12 +1,12 @@
 // components/Column.tsx
-import { ProposeList } from '@/entities/ipropose';
+import { ProposesList } from '@/entities/ipropose';
 import { Column as ColumnType } from '@/types/i-kanban';
 import { Droppable } from '@hello-pangea/dnd';
 import ProposeCard from './ProposeCard';
 
 interface ColumnProps {
   column: ColumnType;
-  proposes: ProposeList[];
+  proposes: ProposesList[];
 }
 
 function Column({ column, proposes }: ColumnProps) {

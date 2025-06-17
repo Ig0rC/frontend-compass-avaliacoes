@@ -1,30 +1,31 @@
 import exportFile from "@/assets/images/export-file.svg";
 import Board from "@/components/Board";
-import { CustomServiceTable } from "@/components/custom-service-table";
 import { FilterListService } from "@/components/filter-list-service";
 import { FooterTable } from "@/components/footer-table";
 import { InputSearch } from "@/components/input-search";
 import { Loader } from "@/components/loader";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { ViewMode } from "@/components/view-mode";
-import { ProposeList } from "@/entities/ipropose";
-import { updateProposeSchema } from "@/schemas/update-propose-schema";
-import { IGetProposesResponse, ProposeService } from "@/services/propose-service";
-import { clearMaskCurrency } from "@/utils/clearMaskCurrency";
+import { ProposeService } from "@/services/propose-service";
+import { formatDate } from "@/utils/formatDate";
+import { getStatus } from "@/utils/getStatus";
 import { safeParseJSON } from "@/utils/safeParseJSON";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { Label } from "@radix-ui/react-label";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { useQuery } from "@tanstack/react-query";
+import { Plus, Search } from "lucide-react";
 import { ChangeEvent, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
 
+
 export function ListServices() {
   const [toggleView, setToggleView] = useState<'L' | 'K'>(
     localStorage.getItem('toggleView') as 'L' | 'K' || 'L'
   );
-  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') ?? '');
@@ -57,49 +58,6 @@ export function ListServices() {
         inspectionStatus: safeParseJSON(inspectionStatus, [])
       }),
   });
-
-  const { mutateAsync: updatePropose } = useMutation({
-    mutationFn: ProposeService.updateInTable,
-    onSuccess(_, variables) {
-      queryClient.setQueryData<IGetProposesResponse>(
-        ['services', pageIndex, userInfoIdUser, inspectionStatus, proposeStatus, proposeDateTo, inspectionDateTo], (cached) => {
-          if (!cached) return cached;
-
-          const updatedProposes = cached.proposes.map((item) =>
-            item.idProposes === variables.idProposes ? {
-              ...variables,
-              proposeAddress: `${variables.proposeAdditionalInfo.proposeAddStreet}, ${variables.proposeAdditionalInfo.proposeAddNumber}, ${variables.proposeAdditionalInfo.proposeAddNeighborhood}, ${variables.proposeAdditionalInfo.proposeAddCity} - ${variables.proposeAdditionalInfo.proposeAddUf}, ${variables.proposeCep}`,
-              inspections: item.inspections,
-            } : item
-          );
-
-          return {
-            ...cached,
-            proposes: updatedProposes,
-          };
-        });
-    }
-  });
-
-  async function handleUpdatePropose(selectedPropose: ProposeList, data: z.infer<typeof updateProposeSchema>) {
-    try {
-      if (selectedPropose) {
-        await updatePropose({
-          ...data,
-          proposeAdditionalInfo: {
-            ...data.proposeAdditionalInfo,
-            proposeAddKmValue: clearMaskCurrency(data.proposeAdditionalInfo.proposeAddKmValue),
-            proposeAddAvaliationValue: clearMaskCurrency(data.proposeAdditionalInfo.proposeAddAvaliationValue),
-            proposeAddDisplacementValue: clearMaskCurrency(data.proposeAdditionalInfo.proposeAddDisplacementValue),
-          },
-        });
-        toast.success('Processo atualizado com sucesso');
-      }
-
-    } catch {
-      toast.error('Erro ao atualizar o processo');
-    }
-  };
 
   async function handleSearchTerm(e: ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
@@ -229,12 +187,80 @@ export function ListServices() {
       </button>
 
       <div>
-        <CustomServiceTable
-          searchParams={searchParams.toString()}
-          onUpdatePropose={handleUpdatePropose}
-          proposes={result ? result.proposes : []}
-        />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead></TableHead>
+              <TableHead>Processo</TableHead>
+              <TableHead>Tipo de Imóvel</TableHead>
+              <TableHead>Endereço</TableHead>
+              <TableHead>Solicitação</TableHead>
+              <TableHead>Vistoria</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Entrega</TableHead>
+              <TableHead>Prestador</TableHead>
+              <TableHead>Obs.</TableHead>
+            </TableRow>
+          </TableHeader>
 
+          <TableBody>
+            {result?.proposes.map((data) => {
+              return (
+                <TableRow key={data.idProposes}>
+                  <TableCell>
+                    <Link state={{ searchParams: searchParams.toString() }} to={`edit-process/${data.idProposes}`}>
+                      <Search size={21} className="text-primary" />
+                    </Link>
+                  </TableCell>
+
+                  <TableCell>
+                    {data?.proposeAdditionalInfo?.proposesAddProposeNumber}
+                  </TableCell>
+
+                  <TableCell>
+                    {data.proposeResType}
+                  </TableCell>
+
+                  <TableCell>
+                    {data.proposeAddress?.slice(0, 46)}...
+                  </TableCell>
+
+                  <TableCell>
+                    {formatDate(data.proposeAdditionalInfo?.proposesAddSolicitationDate).date}
+                  </TableCell>
+
+                  <TableCell>
+                    {formatDate(data.proposeDate).date}
+                  </TableCell>
+
+                  <TableCell>
+                    {getStatus(data.proposeStatus)}
+                  </TableCell>
+
+                  <TableCell >
+                    {data.inspections?.inspectionDate ? formatDate(data.inspections?.inspectionDate).date : "Não Entregue"}
+                  </TableCell>
+
+                  <TableCell >
+                    {data.user.username}
+                  </TableCell>
+
+                  <TableCell>
+                    <Popover>
+                      <PopoverTrigger className="text-black underline">
+                        Ver mais
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <Label >Observações</Label>
+                        <p className="mt-[24px]">{data.proposeDescription}</p>
+                      </PopoverContent>
+                    </Popover>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
         <FooterTable
           onPageChange={handlePaginate}
           pageIndex={pageIndex}

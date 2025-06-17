@@ -16,6 +16,8 @@ const formSchema = z.object({
 export function EditUser() {
   const { id } = useParams();
 
+
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: async () => {
@@ -55,5 +57,7 @@ export function EditUser() {
     toast.success("Usuário Atualizado com sucesso!!");
   }
 
-  return <GenericUserForm form={form} onSubmit={handleSubmit} />;
+  return (
+    <GenericUserForm form={form} onSubmit={handleSubmit} />
+  );
 }

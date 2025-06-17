@@ -34,7 +34,6 @@ export function FilterListService() {
   const userInfoIdUser = searchParams.get('userInfoIdUser');
   const inspectionStatus = searchParams.get('inspectionStatus');
   const proposeStatus = searchParams.get('proposeStatus');
-
   const proposeDateFrom = searchParams.get('proposeDateFrom')
   const proposeDateTo = searchParams.get('proposeDateTo');
   const inspectionDateFrom = searchParams.get('inspectionDateFrom');
@@ -56,8 +55,6 @@ export function FilterListService() {
       inspectionStatus: safeParseJSON<string[]>(inspectionStatus, []),
     }
   });
-
-
 
   useEffect(() => {
     UserSupplierService.list().then(setUsersSupplier).catch(() => {
@@ -230,7 +227,7 @@ export function FilterListService() {
 
             <FormField
               control={form.control}
-              name="inspectionStatus"
+              name="proposeStatus"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm">Status</FormLabel>
@@ -246,42 +243,18 @@ export function FilterListService() {
                       type="multiple"
                       variant="default"
                     >
-                      <ToggleGroupItem value="P">Em Andamento</ToggleGroupItem>
-                      <ToggleGroupItem value="B">Fazer Laudo</ToggleGroupItem>
-                      <ToggleGroupItem value="R">Remarcar</ToggleGroupItem>
-                      <ToggleGroupItem value="C">Cancelado</ToggleGroupItem>
-                      <ToggleGroupItem value="E">Problemas docs</ToggleGroupItem>
-                      <ToggleGroupItem value="F">Entregue</ToggleGroupItem>
-                    </ToggleGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="proposeStatus"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status do laudo</FormLabel>
-                  <FormControl >
-                    <ToggleGroup
-                      onValueChange={(value) => {
-                        field.onChange(value)
-                        form.handleSubmit(handleFilter)()
-                      }}
-                      value={field.value} className="flex flex-wrap gap-2 justify-start" type="multiple">
+                      <ToggleGroupItem value="N">Novo</ToggleGroupItem>
                       <ToggleGroupItem value="A">Aceito</ToggleGroupItem>
                       <ToggleGroupItem value="R">Recusado</ToggleGroupItem>
-                      <ToggleGroupItem value="C">Concluído</ToggleGroupItem>
+                      <ToggleGroupItem value="P">Em Andamento</ToggleGroupItem>
+                      <ToggleGroupItem value="F">Finalizado</ToggleGroupItem>
+                      <ToggleGroupItem value="C">Cancelado</ToggleGroupItem>
                     </ToggleGroup>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
           </form>
         </Form >
       </PopoverContent>

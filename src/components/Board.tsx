@@ -1,5 +1,5 @@
 // App.tsx
-import { ProposeList } from '@/entities/ipropose';
+import { ProposesList } from '@/entities/ipropose';
 import { ProposeService } from '@/services/propose-service';
 import { KanbanData } from '@/types/i-kanban';
 import { initialData } from '@/utils/kanbanData';
@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import Column from './Column';
 
 interface Props {
-  proposes: ProposeList[];
+  proposes: ProposesList[];
 }
 
 function Board({ proposes }: Props) {
@@ -18,12 +18,12 @@ function Board({ proposes }: Props) {
   // Função para mapear o status para o ID da coluna
   const getColumnId = (status: string): string => {
     switch (status) {
-      case 'N': return 'accept' // novo
-      case 'P': return 'progress'; // em andamento
+      case 'N': return 'new' // Novo
       case 'A': return 'accept'; // fazer laudo
       case 'R': return 'refused'; // refused
-      case 'X': return 'cancelled'
+      case 'P': return 'progress'; // em andamento
       case 'F': return 'completed';
+      case 'C': return 'cancelled'
       default: return 'progress';
     }
   };
@@ -35,24 +35,14 @@ function Board({ proposes }: Props) {
     const newData: KanbanData = {
       proposes: {},
       columns: {
-        'progress': {
-          id: 'progress',
-          title: 'Em Andamento',
+        'new': {
+          id: 'new',
+          title: 'Novo',
           proposeIds: []
         },
         'accept': {
           id: 'accept',
-          title: 'Fazer Laudo',
-          proposeIds: []
-        },
-        // 'rebrand': { 
-        //   id: 'rebrand',
-        //   title: 'Remarca',
-        //   proposeIds: []
-        // },
-        'cancelled': {
-          id: 'cancelled',
-          title: 'Cancelado',
+          title: 'Aceito',
           proposeIds: []
         },
         'refused': {
@@ -60,18 +50,23 @@ function Board({ proposes }: Props) {
           title: 'Recusado',
           proposeIds: []
         },
-        // 'problemDocs': {
-        //   id: 'problemDocs', 
-        //   title: 'Problemas Docs',
-        //   proposeIds: []
-        // },
+        'progress': {
+          id: 'progress',
+          title: 'Em Andamento',
+          proposeIds: []
+        },
         'completed': {
           id: 'completed',
           title: 'Entregue',
           proposeIds: []
-        }
+        },
+        'cancelled': {
+          id: 'cancelled',
+          title: 'Cancelado',
+          proposeIds: []
+        },
       },
-      columnOrder: ['progress', 'accept', 'cancelled', 'refused', 'completed']
+      columnOrder: ['new', 'accept', 'refused', 'progress', 'completed', 'cancelled']
     };
 
     // Organizar as propostas nas colunas apropriadas

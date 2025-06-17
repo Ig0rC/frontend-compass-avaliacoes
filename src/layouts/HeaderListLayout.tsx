@@ -6,8 +6,11 @@ import { IUser } from "@/entities/i-user-supplier";
 import { INotifications, NotificationService } from "@/services/notification-service";
 import { UserService } from "@/services/user-service";
 import { PopoverClose } from "@radix-ui/react-popover";
+import { format } from 'date-fns';
+import { ptBR, } from "date-fns/locale";
 import { Bell, BellRing, CircleCheck, X } from "lucide-react";
 import { useEffect, useState } from "react";
+
 import { Link, Outlet, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -28,7 +31,7 @@ export function HeaderListLayout() {
     loadData();
 
 
-    const ws = new WebSocket('ws://localhost:3000/notification-ws');// URL do servidor
+    const ws = new WebSocket(import.meta.env.VITE_BASE_WS);// URL do servidor
 
     ws.onmessage = async (event) => {
       if (event.data) {
@@ -126,24 +129,34 @@ export function HeaderListLayout() {
                 </PopoverClose>
               </div>
 
-              {notifications.map((notification) => (
-                <div key={notification.id}>
-                  {notification.recipients[0]?.status === 'unread' ?
-                    (<div onClick={() => handleReadedNotification(notification.recipients[0].id)} className="cursor-pointer flex gap-2 mb-6">
-                      <BellRing className="min-h-5 min-w-5 text-red-400 animate-pulse " />
-                      <span className="text-sm">
-                        {notification.description}
-                      </span>
+              {notifications.map((notification) => {
+                const { id, description, createdAt, recipients } = notification;
+                const recipient = recipients[0];
+                const isUnread = recipient?.status === 'unread';
+                const Icon = isUnread ? BellRing : CircleCheck;
+                const iconClass = isUnread
+                  ? 'min-h-5 min-w-5 text-red-400 animate-pulse'
+                  : 'text-primary min-h-5 min-w-5';
+
+                return (
+                  <div key={id}>
+                    <div
+                      onClick={() => isUnread && handleReadedNotification(recipient.id)}
+                      className="cursor-pointer flex gap-2 mb-2"
+                    >
+                      <Icon className={iconClass} />
+                      <div>
+                        <p className="text-sm">
+                          {description}
+                        </p>
+                        <span className="text-xs text-slate-500 font-medium">
+                          {format(createdAt, 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                        </span>
+                      </div>
                     </div>
-                    )
-                    : (<div className="cursor-pointer flex gap-2 mb-6">
-                      <CircleCheck className="text-primary min-h-5 min-w-5 pointer" />
-                      <span className="text-sm">
-                        {notification.description}
-                      </span>
-                    </div>)}
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </PopoverContent>
           </Popover>
         </div >
