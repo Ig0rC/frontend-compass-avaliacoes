@@ -6,13 +6,13 @@ import { InputSearch } from "@/components/input-search";
 import { Loader } from "@/components/loader";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ViewMode } from "@/components/view-mode";
 import { ProposeService } from "@/services/propose-service";
 import { formatDate } from "@/utils/formatDate";
 import { getStatus } from "@/utils/getStatus";
 import { safeParseJSON } from "@/utils/safeParseJSON";
 import { Label } from "@radix-ui/react-label";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Search } from "lucide-react";
 import { ChangeEvent, useState } from "react";
