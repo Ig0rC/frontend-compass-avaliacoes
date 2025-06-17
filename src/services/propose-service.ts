@@ -1,4 +1,4 @@
-import { IPropose, ProposeList } from "@/entities/ipropose";
+import { IPropose, ProposesList } from "@/entities/ipropose";
 import { api } from "@/lib/api";
 import { processSchema } from "@/schemas/create-process-schema";
 import { updateProposeSchema } from "@/schemas/update-propose-schema";
@@ -7,7 +7,7 @@ import { z } from "zod";
 import { ProposeMapper } from "./mappers/propose-mapper";
 
 export interface IGetProposesResponse {
-  proposes: ProposeList[]
+  proposes: ProposesList[]
   pagination: {
     currentPage: number
     pageSize: number
